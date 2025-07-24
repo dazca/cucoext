@@ -1,0 +1,19 @@
+{
+  "name": "cucoext-core-tests",
+  "version": "1.0.0",
+  "description": "Test suite for work time tracker core functionality",
+  "main": "manual-test.js",
+  "scripts": {
+    "test": "node unit-tests.js",
+    "test:integration": "node integration-tests.js",
+    "test:manual": "node manual-test.js",
+    "test:all": "npm run test && npm run test:integration"
+  },
+  "dependencies": {
+    "jsdom": "^22.1.0"
+  },
+  "devDependencies": {},
+  "keywords": ["work-tracker", "time-tracking", "testing"],
+  "author": "Work Time Tracker",
+  "license": "MIT"
+}

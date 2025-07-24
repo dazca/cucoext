@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CucoExt - Smart Work Time Tracker</title>
+    <style>
+        body {
+            width: 380px;
+            height: 520px;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            padding: 20px;
+            height: 100%;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .semaphore {
+            font-size: 48px;
+            margin-bottom: 10px;
+            animation: none;
+        }
+
+        .semaphore.blinking {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .status-message {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .status-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .working-time {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+        }
+
+        .time-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .time-value {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 5px 0;
+        }
+
+        .button-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .button-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 1px solid #e9ecef;
+        }
+
+        .button-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .button-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .button-danger:hover {
+            background: #c82333;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .last-update {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CucoExt</h1>
+            <p>Smart Work Time Tracker</p>
+        </div>
+
+        <!-- Status Display -->
+        <div class="status-card" id="statusCard">
+            <div class="semaphore" id="semaphore">⚪</div>
+            <div class="status-message" id="statusMessage">Loading...</div>
+            <div class="status-details" id="statusDetails">Checking work status...</div>
+            
+            <div class="working-time" id="workingTime" style="display: none;">
+                <div class="time-row">
+                    <span class="time-label">Working Time:</span>
+                    <span class="time-value" id="workingTimeValue">--:--</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">Presence Time:</span>
+                    <span class="time-value" id="presenceTimeValue">--:--</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">Remaining:</span>
+                    <span class="time-value" id="remainingTimeValue">--:--</span>
+                </div>
+                <div class="time-row">
+                    <span class="time-label">Theoretical Exit:</span>
+                    <span class="time-value" id="theoreticalExitValue">--:--</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" id="statusTab-btn" data-tab="status">Status</button>
+            <button class="tab" id="credentialsTab-btn" data-tab="credentials">Credentials</button>
+            <button class="tab" id="configTab-btn" data-tab="config">Config</button>
+            <button class="tab" id="aboutTab-btn" data-tab="about">About</button>
+        </div>
+
+        <!-- Status Tab -->
+        <div class="tab-content active" id="statusTab">
+            <button class="button button-primary" id="refreshStatus-btn">
+                <span id="refreshText">Refresh Status</span>
+                <span id="refreshLoading" class="loading hidden"></span>
+            </button>
+            
+            <!-- TimeSheet Reminder (shown when work complete) -->
+            <div id="timesheetReminder" class="section hidden">
+                <div class="section-title">📋 TimeSheet Reminder</div>
+                <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                    Your work hours are complete! Don't forget to fill your timesheet.
+                </p>
+                <button class="button button-secondary" id="openTimeSheet-btn">
+                    🕒 Open TimeSheet
+                </button>
+            </div>
+            
+            <div class="last-update" id="lastUpdate">Last updated: Never</div>
+        </div>
+
+        <!-- Credentials Tab -->
+        <div class="tab-content" id="credentialsTab">
+            <div class="section">
+                <div class="section-title">Automated Extraction</div>
+                <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                    Click to open Cuco360 and automatically extract credentials.
+                </p>
+                <button class="button button-primary" id="extractCredentials-btn">
+                    🚀 Auto-Extract Credentials
+                </button>
+                <button class="button button-secondary" id="testExtraction-btn" style="margin-top: 10px;">
+                    🧪 Test Current Page
+                </button>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Manual Credentials</div>
+                <div class="form-group">
+                    <label class="form-label">CSRF Token</label>
+                    <input type="text" class="form-input" id="tokenInput" placeholder="Enter token from browser">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cookies</label>
+                    <textarea class="form-input form-textarea" id="cookiesInput" placeholder="Enter cookies string"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Client Code</label>
+                    <input type="text" class="form-input" id="clientCodeInput" placeholder="Your company's client code">
+                </div>
+                <button class="button button-primary" id="saveCredentials-btn">Save Credentials</button>
+                <button class="button button-danger" id="clearCredentials-btn">Clear Credentials</button>
+                <div id="credentialsMessage"></div>
+            </div>
+        </div>
+
+        <!-- Config Tab -->
+        <div class="tab-content" id="configTab">
+            <div class="section">
+                <div class="section-title">Working Hours Schedule</div>
+                <div class="form-group">
+                    <label class="form-label">Schedule Type</label>
+                    <select class="form-select" id="workingHoursSelect">
+                        <option value="common">Common Schedule (8.5h + 6h Friday)</option>
+                        <option value="standard">Standard Schedule (8h daily)</option>
+                        <option value="intensive">Intensive Schedule (6.5h daily)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="autoDetectIntensive" checked> Auto-detect August intensive schedule
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="notificationsEnabled"> Enable work completion notifications
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="debugLogsEnabled"> Enable debug console logs
+                    </label>
+                </div>
+                <button class="button button-primary" id="saveConfiguration-btn">Save Configuration</button>
+                <div id="configMessage"></div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div class="tab-content" id="aboutTab">
+            <div class="section">
+                <div class="section-title">📋 CucoExt - Smart Work Time Tracker</div>
+                <p style="margin-bottom: 10px; color: #666; font-size: 14px;">
+                    Version: 2025.07.24<br>
+                    Platform: Opera Extension
+                </p>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <h4 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">📜 License Information</h4>
+                    <p style="margin: 5px 0; font-size: 13px; color: #666;">
+                        Licensed under <strong>CC BY-NC-SA 4.0</strong><br>
+                        ✅ Personal use allowed<br>
+                        ❌ Commercial use requires permission
+                    </p>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                    <h4 style="margin: 0 0 10px 0; color: #856404; font-size: 14px;">⚠️ Commercial Use Notice</h4>
+                    <p style="margin: 5px 0; font-size: 13px; color: #856404;">
+                        Companies and businesses must obtain written permission before using this extension for commercial purposes.
+                    </p>
+                </div>
+                
+                <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #17a2b8;">
+                    <h4 style="margin: 0 0 10px 0; color: #0c5460; font-size: 14px;">📧 Contact Information</h4>
+                    <p style="margin: 5px 0; font-size: 13px; color: #0c5460;">
+                        <strong>Commercial Licensing:</strong><br>
+                        cucoext.licensing@gmail.com<br><br>
+                        <strong>Support & Bug Reports:</strong><br>
+                        cucoext.support@gmail.com<br><br>
+                        <strong>Feature Requests:</strong><br>
+                        cucoext.features@gmail.com
+                    </p>
+                </div>
+                
+                <button class="button button-secondary" onclick="chrome.tabs.create({url: 'https://creativecommons.org/licenses/by-nc-sa/4.0/'})">
+                    📖 View Full License
+                </button>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">🚀 Features</div>
+                <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #666;">
+                    <li>Real-time work time tracking</li>
+                    <li>Presence time calculation (excludes breaks)</li>
+                    <li>Spanish working hours compliance</li>
+                    <li>August intensive schedule auto-detection</li>
+                    <li>Automated credential management</li>
+                    <li>Work completion notifications</li>
+                    <li>Multiple schedule support</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

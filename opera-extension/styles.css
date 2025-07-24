@@ -1,0 +1,144 @@
+/* Work Time Tracker Widget Styles */
+.work-time-tracker {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 320px;
+    background: #ffffff;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.work-time-tracker.minimized .tracker-content {
+    display: none;
+}
+
+.tracker-header {
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tracker-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.tracker-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tracker-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tracker-content {
+    padding: 15px;
+}
+
+.tracker-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.tracker-row.highlight {
+    background: #f8f9fa;
+    margin: 10px -15px;
+    padding: 10px 15px;
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+}
+
+.tracker-label {
+    color: #495057;
+    font-weight: 500;
+}
+
+.tracker-value {
+    font-weight: bold;
+    color: #212529;
+}
+
+.tracker-value.remaining {
+    color: #dc3545;
+}
+
+.tracker-value.completed {
+    color: #28a745;
+}
+
+.tracker-status {
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-weight: bold;
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.tracker-status.can-leave {
+    background: #e8f5e8;
+    color: #2e7d32;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.tracker-refresh {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.tracker-refresh button {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.tracker-refresh button:hover {
+    background: #5a6268;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .work-time-tracker {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+}

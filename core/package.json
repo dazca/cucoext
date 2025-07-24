@@ -1,0 +1,23 @@
+{
+  "name": "work-time-tracker-core-tests",
+  "version": "1.0.0",
+  "description": "Tests for the core work time tracker functionality",
+  "main": "test-runner.js",
+  "scripts": {
+    "test": "node test-runner.js",
+    "test:unit": "node unit-tests.js",
+    "test:integration": "node integration-tests.js",
+    "test:manual": "node manual-test.js"
+  },
+  "dependencies": {
+    "jsdom": "^22.1.0",
+    "node-fetch": "^2.6.7"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

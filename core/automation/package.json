@@ -1,0 +1,17 @@
+{
+  "name": "cucoext-token-extractor",
+  "version": "1.0.0",
+  "description": "Automated token extraction for cuco360",
+  "main": "automated-token-extractor.js",
+  "scripts": {
+    "extract": "node automated-token-extractor.js",
+    "install-playwright": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {},
+  "keywords": ["automation", "token-extraction", "cuco360"],
+  "author": "Work Time Tracker",
+  "license": "MIT"
+}

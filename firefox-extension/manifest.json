@@ -1,0 +1,54 @@
+{
+  "manifest_version": 2,
+  "name": "CucoExt - Work Time Tracker",
+  "version": "1.0.0",
+  "description": "Smart work time tracker for Cuco360 platform with Spanish working hours support",
+  
+  "permissions": [
+    "storage",
+    "tabs",
+    "notifications",
+    "alarms",
+    "activeTab",
+    "*://cuco360.cucorent.com/*",
+    "*://wigos-login.winsysgroup.com/*"
+  ],
+  
+  "background": {
+    "scripts": ["debug-utils.js", "core-integration.js", "background.js"],
+    "persistent": false
+  },
+  
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "CucoExt - Work Time Tracker",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["*://cuco360.cucorent.com/*"],
+      "js": ["credential-extractor.js"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  
+  "applications": {
+    "gecko": {
+      "id": "cucoext@example.com",
+      "strict_min_version": "57.0"
+    }
+  }
+}

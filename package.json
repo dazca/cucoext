@@ -1,0 +1,27 @@
+{
+  "name": "cucoext",
+  "version": "2.0.0",
+  "description": "CucoExt - Smart work time tracking for Spanish companies using cuco360.cucorent.com",
+  "scripts": {
+    "build": "powershell -ExecutionPolicy Bypass -File Build-All.ps1",
+    "setup": "powershell -ExecutionPolicy Bypass -File Setup.ps1",
+    "build-chrome": "powershell -ExecutionPolicy Bypass -File Build-All.ps1 -Module chrome-extension",
+    "build-firefox": "powershell -ExecutionPolicy Bypass -File Build-All.ps1 -Module firefox-extension",
+    "build-opera": "powershell -ExecutionPolicy Bypass -File Build-All.ps1 -Module opera-extension",
+    "build-widget": "powershell -ExecutionPolicy Bypass -File Build-All.ps1 -Module windows11-widget"
+  },
+  "keywords": [
+    "chrome-extension",
+    "firefox-extension", 
+    "opera-extension",
+    "work-time-tracker",
+    "cuco360",
+    "spanish-working-hours"
+  ],
+  "author": "CucoExt Team",
+  "license": "CC-BY-NC-SA-4.0",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

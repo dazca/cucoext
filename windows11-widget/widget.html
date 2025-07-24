@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CucoExt Work Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .widget-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .semaphore {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-grid .info-item:nth-child(3) {
+            grid-column: 1 / -1;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .progress-section {
+            margin-bottom: 30px;
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #66BB6A);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .last-update {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        /* Settings Panel Styles */
+        .settings-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 0;
+            min-width: 350px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+        }
+
+        .settings-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-content {
+            padding: 20px;
+        }
+
+        .settings-content label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .settings-content select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            background: white;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
+        .setting-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .settings-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .settings-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .settings-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 480px) {
+            .widget-container {
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+
+            .settings-panel {
+                min-width: 90%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <div class="semaphore" id="semaphore">⚪</div>
+        <div class="title">CucoExt</div>
+        <div class="status-message" id="status-message">Loading work status...</div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Working Time</div>
+                <div class="info-value" id="working-time">0h 0min</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Presence Time</div>
+                <div class="info-value" id="presence-time">0h 0min</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Remaining</div>
+                <div class="info-value" id="remaining-time">--h --min</div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-label">Daily Progress</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0%</div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn" onclick="refreshStatus()">🔄 Refresh</button>
+            <button class="action-btn" onclick="toggleSettings()">⚙️ Settings</button>
+            <a class="action-btn" href="https://cuco360.cucorent.com" target="_blank">🌐 Timesheet</a>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settings-panel" style="display: none;">
+            <div class="settings-header">
+                <h3>Working Hours Schedule</h3>
+                <button class="close-btn" onclick="toggleSettings()">✕</button>
+            </div>
+            <div class="settings-content">
+                <label for="schedule-select">Schedule Type:</label>
+                <select id="schedule-select" onchange="updateWorkingHours()">
+                    <option value="common">Common Schedule (8h30min + 30min eating Mon-Thu, 6h Fri)</option>
+                    <option value="standard">Standard Schedule (8h + 30min eating Mon-Fri)</option>
+                    <option value="intensive">Intensive Schedule (6h30min + 30min eating Mon-Fri)</option>
+                </select>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="auto-detect-intensive" checked> 
+                        Auto-detect August intensive schedule
+                    </label>
+                </div>
+                <div class="settings-status" id="settings-status"></div>
+            </div>
+        </div>
+
+        <div class="last-update" id="last-update">Last updated: Never</div>
+    </div>
+
+    <script>
+        // Widget API for Windows 11
+        class CucoExtWidget {
+            constructor() {
+                this.updateInterval = null;
+                this.init();
+            }
+
+            async init() {
+                // Register as PWA
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js');
+                }
+
+                // Start updates
+                this.startUpdates();
+                
+                // Initial update
+                await this.updateStatus();
+            }
+
+            startUpdates() {
+                // Update every 30 seconds
+                this.updateInterval = setInterval(() => {
+                    this.updateStatus();
+                }, 30000);
+            }
+
+            async updateStatus() {
+                try {
+                    // Try to get status from core scripts
+                    const status = await this.getWorkStatus();
+                    this.updateUI(status);
+                    this.updateWidgetData(status);
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    this.updateUI({
+                        semaphore: '🔴',
+                        message: 'Error: Could not connect to CucoExt core',
+                        workingTime: '0h 0min',
+                        remainingTime: '--h --min',
+                        progress: 0
+                    });
+                }
+            }
+
+            async getWorkStatus() {
+                try {
+                    // Connect to local API server
+                    const response = await fetch('http://localhost:3001/api/status');
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const status = await response.json();
+                    
+                    if (status.error) {
+                        throw new Error(status.message || 'API returned error');
+                    }
+                    
+                    return {
+                        semaphore: status.semaphore,
+                        message: status.message,
+                        workingTime: status.workingTime,
+                        remainingTime: status.remainingTime,
+                        progress: status.progress
+                    };
+                    
+                } catch (error) {
+                    console.error('Error fetching work status:', error.message);
+                    
+                    // Return fallback status
+                    return {
+                        semaphore: '🔴',
+                        message: `Error: ${error.message}`,
+                        workingTime: '0h 0min',
+                        remainingTime: '--h --min',
+                        progress: 0
+                    };
+                }
+            }
+
+            updateUI(status) {
+                document.getElementById('semaphore').textContent = status.semaphore;
+                document.getElementById('status-message').textContent = status.message;
+                document.getElementById('working-time').textContent = status.workingTime;
+                document.getElementById('presence-time').textContent = status.presenceTime || '0h 0min';
+                document.getElementById('remaining-time').textContent = status.remainingTime;
+                
+                const progressFill = document.getElementById('progress-fill');
+                const progressText = document.getElementById('progress-text');
+                
+                progressFill.style.width = `${status.progress}%`;
+                progressText.textContent = `${status.progress}%`;
+                
+                // Update progress color based on completion
+                if (status.progress >= 100) {
+                    progressFill.style.background = 'linear-gradient(90deg, #4CAF50, #66BB6A)';
+                } else if (status.progress >= 80) {
+                    progressFill.style.background = 'linear-gradient(90deg, #FF9800, #FFB74D)';
+                } else {
+                    progressFill.style.background = 'linear-gradient(90deg, #2196F3, #64B5F6)';
+                }
+
+                document.getElementById('last-update').textContent = 
+                    `Last updated: ${new Date().toLocaleTimeString()}`;
+            }
+
+            updateWidgetData(status) {
+                // Update data for Windows 11 widget API
+                if (window.chrome && window.chrome.webview) {
+                    // Running in WebView2 (Windows 11 widgets)
+                    window.chrome.webview.postMessage({
+                        type: 'widget-data-update',
+                        data: {
+                            semaphore: status.semaphore,
+                            statusMessage: status.message,
+                            workingTime: status.workingTime,
+                            remainingTime: status.remainingTime,
+                            progressPercent: status.progress
+                        }
+                    });
+                }
+            }
+        }
+
+        // Global functions
+        function refreshStatus() {
+            if (window.widget) {
+                window.widget.updateStatus();
+            }
+        }
+
+        // Settings functions
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+                loadCurrentSettings();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+        async function loadCurrentSettings() {
+            try {
+                // Load current working hours setting from core system
+                const response = await fetch('/api/working-hours');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('schedule-select').value = data.currentSet || 'common';
+                    document.getElementById('auto-detect-intensive').checked = data.autoDetectIntensive !== false;
+                } else {
+                    // Set defaults if no settings found
+                    document.getElementById('schedule-select').value = 'common';
+                    document.getElementById('auto-detect-intensive').checked = true;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function updateWorkingHours() {
+            const scheduleSelect = document.getElementById('schedule-select');
+            const autoDetectCheckbox = document.getElementById('auto-detect-intensive');
+            const statusDiv = document.getElementById('settings-status');
+            
+            const newSchedule = scheduleSelect.value;
+            const autoDetect = autoDetectCheckbox.checked;
+            
+            try {
+                statusDiv.textContent = 'Updating...';
+                statusDiv.className = 'settings-status';
+                
+                const response = await fetch('/api/working-hours', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        schedule: newSchedule,
+                        autoDetectIntensive: autoDetect
+                    })
+                });
+                
+                if (response.ok) {
+                    statusDiv.textContent = `✅ Schedule updated to: ${newSchedule}`;
+                    statusDiv.className = 'settings-status success';
+                    
+                    // Refresh status after settings update
+                    setTimeout(() => {
+                        refreshStatus();
+                    }, 1000);
+                } else {
+                    throw new Error('Failed to update settings');
+                }
+            } catch (error) {
+                statusDiv.textContent = `❌ Error: ${error.message}`;
+                statusDiv.className = 'settings-status error';
+            }
+        }
+
+        // Initialize widget when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.widget = new CucoExtWidget();
+        });
+
+        // Handle visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && window.widget) {
+                window.widget.updateStatus();
+            }
+        });
+    </script>
+</body>
+</html>

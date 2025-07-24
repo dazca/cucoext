@@ -1,0 +1,47 @@
+/delivery_package
+.github
+.vscode
+
+# Sensitive configuration files
+**/config.json
+**/config-*.json
+**/config-local.json
+**/credentials.json
+**/tokens.json
+**/*credentials*
+**/*token*
+**/*secret*
+
+# Test configuration files that may contain real data
+**/test-config.json
+**/integration-config.json
+
+# Logs that might contain sensitive data
+**/*.log
+**/debug-*.html
+**/api_response_sample.html
+**/*.backup
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+**/temp-*
+**/tmp-*
+
+# macOS specific
+.DS_Store
+**/.DS_Store
+
+# Node.js
+node_modules/
+**/node_modules/
+npm-debug.log*
+
+# Build outputs
+**/dist/
+**/build/
+**/*.zip
+

@@ -1,0 +1,21 @@
+# Sensitive configuration files
+**/config.json
+**/config-*.json
+**/credentials.json
+**/tokens.json
+**/*credentials*
+**/*token*
+**/*secret*
+
+# Test configuration files that may contain real data
+**/test-config.json
+**/integration-config.json
+
+# Logs and temporary files
+**/*.log
+**/*temp*
+**/*tmp*
+
+# Environment files
+.env
+.env.local

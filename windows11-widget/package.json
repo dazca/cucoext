@@ -1,0 +1,22 @@
+{
+  "name": "cucoext-windows11-widget",
+  "version": "1.0.0",
+  "description": "Windows 11 taskbar widget for CucoExt work time tracking",
+  "main": "taskbar-main.js",
+  "scripts": {
+    "start": "electron taskbar-main.js",
+    "taskbar": "electron taskbar-main.js", 
+    "server": "node server.js",
+    "install-taskbar": "install-taskbar.bat",
+    "dev": "node server.js"
+  },
+  "keywords": ["windows11", "widget", "cucoext", "timetracking", "taskbar"],
+  "author": "CucoExt",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^32.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

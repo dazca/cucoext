@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "CucoExt - Smart Work Time Tracker",
+  "version": "2.0.0",
+  "description": "Intelligent work time tracking with automated credential management and Spanish working hours support",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "alarms",
+    "notifications",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://cuco360.cucorent.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://cuco360.cucorent.com/*"],
+      "js": ["debug-utils.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://cuco360.cucorent.com/*"],
+      "js": ["debug-utils.js", "credential-extractor.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CucoExt - Work Time Tracker"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

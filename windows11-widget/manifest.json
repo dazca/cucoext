@@ -1,0 +1,187 @@
+{
+    "name": "CucoExt Work Tracker",
+    "short_name": "CucoExt",
+    "description": "Track your work hours with real-time semaphore status",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "start_url": "/widget.html",
+    "display": "standalone",
+    "background_color": "#667eea",
+    "theme_color": "#667eea",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "icons/icon-72.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-96.png", 
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-128.png",
+            "sizes": "128x128", 
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-152.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "widgets": [
+        {
+            "name": "CucoExt Status",
+            "description": "Real-time work time tracking",
+            "tag": "cucoext-status",
+            "template": "adaptive-card",
+            "data": "widget-data.json",
+            "screenshots": [
+                {
+                    "src": "screenshots/widget-preview.png",
+                    "sizes": "516x229",
+                    "label": "CucoExt Status Widget"
+                }
+            ],
+            "ms_ac_template": {
+                "type": "AdaptiveCard",
+                "version": "1.5",
+                "body": [
+                    {
+                        "type": "Container",
+                        "style": "emphasis",
+                        "items": [
+                            {
+                                "type": "ColumnSet",
+                                "columns": [
+                                    {
+                                        "type": "Column",
+                                        "width": "auto",
+                                        "items": [
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "${semaphore}",
+                                                "size": "Large",
+                                                "horizontalAlignment": "Center"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "Column", 
+                                        "width": "stretch",
+                                        "items": [
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "CucoExt",
+                                                "weight": "Bolder",
+                                                "size": "Medium"
+                                            },
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "${statusMessage}",
+                                                "wrap": true,
+                                                "size": "Small"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "ColumnSet",
+                                "spacing": "Medium",
+                                "columns": [
+                                    {
+                                        "type": "Column",
+                                        "width": "stretch",
+                                        "items": [
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "Working Time",
+                                                "size": "Small",
+                                                "color": "Accent"
+                                            },
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "${workingTime}",
+                                                "weight": "Bolder"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "Column", 
+                                        "width": "stretch",
+                                        "items": [
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "Remaining",
+                                                "size": "Small",
+                                                "color": "Accent"
+                                            },
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "${remainingTime}",
+                                                "weight": "Bolder"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "ColumnSet",
+                                "spacing": "Small",
+                                "columns": [
+                                    {
+                                        "type": "Column",
+                                        "width": "stretch",
+                                        "items": [
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "Progress: ${progressPercent}%",
+                                                "size": "Small"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "Open Timesheet",
+                        "url": "https://cuco360.cucorent.com"
+                    }
+                ]
+            }
+        }
+    ],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "edge_extension": {
+        "allowed_origins": ["*"]
+    }
+}
