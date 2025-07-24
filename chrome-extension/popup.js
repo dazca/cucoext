@@ -11,16 +11,758 @@
  * License: https://creativecommons.org/licenses/by-nc-sa/4.0/
  */
 
+// Translations object - native texts for each language
+const translations = {
+    en: {
+        // Header and basic info
+        title: "CucoExt",
+        subtitle: "Smart Work Time Tracker",
+        
+        // Status messages
+        loading: "Loading...",
+        checkingStatus: "Checking work status...",
+        statusRefreshed: "Status refreshed successfully",
+        lastUpdate: "Last updated",
+        never: "Never",
+        
+        // Tab names
+        status: "Status",
+        marcajes: "Marcajes",
+        credentials: "Credentials",
+        
+        // Time labels
+        workingTime: "Working Time",
+        presenceTime: "Presence Time", 
+        remaining: "Remaining",
+        theoreticalExit: "Expected Exit",
+        
+        // Status messages
+        canLeave: "You can leave work",
+        timeToLeave: "Time to leave",
+        keepWorking: "Continue working",
+        notStarted: "Work not started",
+        
+        // Status detail messages
+        noEntryTimeDetected: "No entry time detected",
+        noAdditionalDetails: "No additional details",
+        canLeaveRequirementsCompleted: "Can leave - requirements completed",
+        exactlyTimeToLeave: "Exactly time to leave!",
+        credentialsExpiredClickRefresh: "Credentials expired - click to refresh",
+        
+        // Buttons
+        refreshStatus: "Refresh Status",
+        openTimesheet: "Open Timesheet",
+        autoExtractCredentials: "Auto-Extract Credentials",
+        testCurrentPage: "Test Current Page",
+        saveCredentials: "Save Credentials",
+        clearCredentials: "Clear Credentials",
+        saveConfiguration: "Save Configuration",
+        refreshMarcajes: "Refresh Records",
+        export: "Export",
+        fixProblems: "Fix Issues",
+        
+        // Credential section
+        automatedExtraction: "Automated Extraction",
+        autoExtractDescription: "Click to open Cuco360 and automatically extract credentials.",
+        manualCredentials: "Manual Credentials",
+        csrfToken: "CSRF Token",
+        tokenPlaceholder: "Enter token from browser",
+        cookies: "Cookies",
+        cookiesPlaceholder: "Enter cookies string",
+        clientCode: "Company Code",
+        clientCodePlaceholder: "Your company's client code",
+        
+        // Configuration section
+        languageLabel: "Interface Language",
+        autoBrowserLanguage: "Auto (Browser Language)",
+        english: "English",
+        catalan: "Català",
+        spanish: "Español",
+        
+        workingHoursSchedule: "Working Hours Schedule",
+        scheduleType: "Schedule Type",
+        commonSchedule: "Common Schedule (8.5h + 6h Friday)",
+        standardSchedule: "Standard Schedule (8h daily)",
+        intensiveSchedule: "Intensive Schedule (6.5h daily)",
+        autoDetectIntensive: "Auto-detect August intensive schedule",
+        enableNotifications: "Enable work completion notifications",
+        enableDebugLogs: "Enable debug console logs",
+        
+        // Marcajes section
+        entriesAndExits: "Entries and Exits",
+        refreshMarcajesInfo: "Click \"Refresh Records\" to load today's entries and exits",
+        todaysMarcajes: "Today's Records",
+        entries: "Entries",
+        exits: "Exits",
+        presenceTimeLabel: "Presence time",
+        offlineMode: "Offline Mode",
+        
+        // Problems section
+        problematicEntries: "Problematic Entries",
+        doubleEntriesDetected: "Double entries or exits detected. Please review and fix:",
+        
+        // Export section
+        exportMarcajes: "Export Records",
+        chooseFormat: "Choose export format:",
+        includeLabels: "Include labels",
+        includeProblems: "Include problems",
+        
+        // Messages
+        credentialsConfigured: "Credentials configured",
+        noCredentialsConfigured: "No credentials configured",
+        configurationSaved: "Configuration saved successfully",
+        problemsFixed: "Problems fixed! The corrected data has been saved.",
+        fixProblemsConfirm: "This will automatically fix double entries/exits based on 5-minute rule. Continue?",
+        usingCachedData: "Using cached data",
+        errorPrefix: "Error",
+        noCredentialsAvailable: "No credentials available. Please extract credentials first.",
+        failedToFetch: "Failed to fetch records data",
+        
+        // About section
+        aboutCucoExt: "About CucoExt",
+        version: "Version 2.0.0 - Chrome Extension",
+        features: "Features",
+        featuresList: [
+            "Real-time work time tracking",
+            "Spanish working hours support", 
+            "Automated credential management",
+            "Presence time calculation",
+            "Multiple schedule support",
+            "Background monitoring",
+            "Visual status indicators"
+        ],
+        license: "License",
+        licenseInfo: "CC BY-NC-SA 4.0 - Creative Commons",
+        personalUseAllowed: "Personal use allowed",
+        commercialUseRequiresPermission: "Commercial use requires permission",
+        support: "Support",
+        supportInfo: "For issues or commercial licensing:",
+        technicalDetails: "Technical Details",
+        platform: "Platform",
+        platformInfo: "Chrome Extension (Manifest V3)",
+        target: "Target",
+        targetInfo: "cuco360.cucorent.com",
+        storage: "Storage",
+        storageInfo: "Chrome Local Storage",
+        permissions: "Permissions",
+        permissionsInfo: "activeTab, storage, alarms, notifications",
+        
+        // Timesheet reminder
+        timesheetReminder: "Timesheet Reminder",
+        workHoursComplete: "Your work hours are complete! Don't forget to fill your timesheet."
+    },
+    
+    ca: {
+        // Header and basic info
+        title: "CucoExt",
+        subtitle: "Control Intel·ligent de Jornada",
+        
+        // Status messages
+        loading: "Carregant...",
+        checkingStatus: "Comprovant estat de la jornada...",
+        statusRefreshed: "Estat actualitzat correctament",
+        lastUpdate: "Última actualització",
+        never: "Mai",
+        
+        // Tab names
+        status: "Estat",
+        marcajes: "Marcatges",
+        credentials: "Credencials",
+        
+        // Time labels
+        workingTime: "Temps de Treball",
+        presenceTime: "Temps de Presència",
+        remaining: "Restant",
+        theoreticalExit: "Sortida Prevista",
+        
+        // Status messages
+        canLeave: "Pots marxar de la feina",
+        timeToLeave: "És hora de marxar",
+        keepWorking: "Continua treballant",
+        notStarted: "Jornada no iniciada",
+        
+        // Status detail messages
+        noEntryTimeDetected: "No s'ha detectat hora d'entrada",
+        noAdditionalDetails: "Sense detalls addicionals",
+        canLeaveRequirementsCompleted: "Pots marxar - requisits completats",
+        exactlyTimeToLeave: "És exactament l'hora de marxar!",
+        credentialsExpiredClickRefresh: "Credencials caducades - clica per actualitzar",
+        
+        // Buttons
+        refreshStatus: "Actualitzar Estat",
+        openTimesheet: "Obrir Full d'Hores",
+        autoExtractCredentials: "Extreure Credencials Automàticament",
+        testCurrentPage: "Provar Pàgina Actual",
+        saveCredentials: "Desar Credencials",
+        clearCredentials: "Esborrar Credencials",
+        saveConfiguration: "Desar Configuració",
+        refreshMarcajes: "Actualitzar Marcatges",
+        export: "Exportar",
+        fixProblems: "Corregir Problemes",
+        
+        // Credential section
+        automatedExtraction: "Extracció Automàtica",
+        autoExtractDescription: "Fes clic per obrir Cuco360 i extreure les credencials automàticament.",
+        manualCredentials: "Credencials Manuals",
+        csrfToken: "Token CSRF",
+        tokenPlaceholder: "Introdueix el token del navegador",
+        cookies: "Galetes",
+        cookiesPlaceholder: "Introdueix la cadena de galetes",
+        clientCode: "Codi d'Empresa",
+        clientCodePlaceholder: "Codi dins l'empresa",
+        
+        // Configuration section
+        languageLabel: "Idioma de la Interfície",
+        autoBrowserLanguage: "Automàtic (Idioma del Navegador)",
+        english: "English",
+        catalan: "Català",
+        spanish: "Español",
+        
+        workingHoursSchedule: "Horari de Treball",
+        scheduleType: "Tipus d'Horari",
+        commonSchedule: "Horari Comú (8,5h + 6h divendres)",
+        standardSchedule: "Horari Estàndard (8h diàries)",
+        intensiveSchedule: "Horari Intensiu (6,5h diàries)",
+        autoDetectIntensive: "Horari intensiu d'agost automàtic",
+        enableNotifications: "Notificacions de fi de jornada",
+        enableDebugLogs: "Activar registres de depuració a la consola",
+        
+        // Marcajes section
+        entriesAndExits: "Entrades i Sortides",
+        refreshMarcajesInfo: "Fes clic a \"Actualitzar Marcatges\" per carregar les entrades i sortides d'avui",
+        todaysMarcajes: "Marcatges d'Avui",
+        entries: "Entrades",
+        exits: "Sortides",
+        presenceTimeLabel: "Temps de presència",
+        offlineMode: "Mode Fora de Línia",
+        
+        // Problems section
+        problematicEntries: "Entrades Problemàtiques",
+        doubleEntriesDetected: "S'han detectat entrades o sortides dobles. Si us plau, revisa i corregeix:",
+        
+        // Export section
+        exportMarcajes: "Exportar Marcatges",
+        chooseFormat: "Tria el format d'exportació:",
+        includeLabels: "Incloure etiquetes",
+        includeProblems: "Incloure problemes",
+        
+        // Messages
+        credentialsConfigured: "Credencials configurades",
+        noCredentialsConfigured: "No hi ha credencials configurades",
+        configurationSaved: "Configuració desada correctament",
+        problemsFixed: "Problemes corregits! Les dades corregides s'han desat.",
+        fixProblemsConfirm: "Això corregirà automàticament les entrades/sortides dobles basant-se en la regla dels 5 minuts. Continuar?",
+        usingCachedData: "Utilitzant dades emmagatzemades",
+        errorPrefix: "Error",
+        noCredentialsAvailable: "No hi ha credencials disponibles. Si us plau, extreu les credencials primer.",
+        failedToFetch: "Error en obtenir les dades de marcatges",
+        
+        // About section
+        aboutCucoExt: "Sobre CucoExt",
+        version: "Versió 2.0.0 - Extensió de Chrome",
+        features: "Funcionalitats",
+        featuresList: [
+            "Seguiment de temps de treball en temps real",
+            "Suport per horaris laborals espanyols",
+            "Gestió automàtica de credencials",
+            "Càlcul del temps de presència",
+            "Suport per múltiples horaris",
+            "Monitorització en segon pla",
+            "Indicadors visuals d'estat"
+        ],
+        license: "Llicència",
+        licenseInfo: "CC BY-NC-SA 4.0 - Creative Commons",
+        personalUseAllowed: "Ús personal permès",
+        commercialUseRequiresPermission: "L'ús comercial requereix permís",
+        support: "Suport",
+        supportInfo: "Per a problemes o llicències comercials:",
+        technicalDetails: "Detalls Tècnics",
+        platform: "Plataforma",
+        platformInfo: "Extensió de Chrome (Manifest V3)",
+        target: "Objectiu",
+        targetInfo: "cuco360.cucorent.com",
+        storage: "Emmagatzematge",
+        storageInfo: "Emmagatzematge Local de Chrome",
+        permissions: "Permisos",
+        permissionsInfo: "activeTab, storage, alarms, notifications",
+        
+        // Timesheet reminder
+        timesheetReminder: "Recordatori de Full d'Hores",
+        workHoursComplete: "Les teves hores de treball estan completes! No oblidis omplir el teu full d'hores."
+    },
+    
+    es: {
+        // Header and basic info
+        title: "CucoExt",
+        subtitle: "Control Inteligente de Jornada",
+        
+        // Status messages
+        loading: "Cargando...",
+        checkingStatus: "Comprobando estado de la jornada...",
+        statusRefreshed: "Estado actualizado correctamente",
+        lastUpdate: "Última actualización",
+        never: "Nunca",
+        
+        // Tab names
+        status: "Estado",
+        marcajes: "Marcajes",
+        credentials: "Credenciales",
+        
+        // Time labels
+        workingTime: "Tiempo de Trabajo",
+        presenceTime: "Tiempo de Presencia",
+        remaining: "Restante",
+        theoreticalExit: "Salida Prevista",
+        
+        // Status messages
+        canLeave: "Puedes marcharte del trabajo",
+        timeToLeave: "Es hora de marcharse",
+        keepWorking: "Continúa trabajando",
+        notStarted: "Jornada no iniciada",
+        
+        // Status detail messages
+        noEntryTimeDetected: "No se ha detectado hora de entrada",
+        noAdditionalDetails: "Sin detalles adicionales",
+        canLeaveRequirementsCompleted: "Puedes marcharte - requisitos completados",
+        exactlyTimeToLeave: "¡Es exactamente la hora de marcharse!",
+        credentialsExpiredClickRefresh: "Credenciales caducadas - clica para actualizar",
+        
+        // Buttons
+        refreshStatus: "Actualizar Estado",
+        openTimesheet: "Abrir Hoja de Horas",
+        autoExtractCredentials: "Extraer Credenciales Automáticamente",
+        testCurrentPage: "Probar Página Actual",
+        saveCredentials: "Guardar Credenciales",
+        clearCredentials: "Borrar Credenciales",
+        saveConfiguration: "Guardar Configuración",
+        refreshMarcajes: "Actualizar Marcajes",
+        export: "Exportar",
+        fixProblems: "Corregir Problemas",
+        
+        // Credential section
+        automatedExtraction: "Extracción Automática",
+        autoExtractDescription: "Haz clic para abrir Cuco360 y extraer las credenciales automáticamente.",
+        manualCredentials: "Credenciales Manuales",
+        csrfToken: "Token CSRF",
+        tokenPlaceholder: "Introduce el token del navegador",
+        cookies: "Cookies",
+        cookiesPlaceholder: "Introduce la cadena de cookies",
+        clientCode: "Código de Empresa",
+        clientCodePlaceholder: "El código de tu empresa",
+        
+        // Configuration section
+        languageLabel: "Idioma de la Interfaz",
+        autoBrowserLanguage: "Automático (Idioma del Navegador)",
+        english: "English",
+        catalan: "Català",
+        spanish: "Español",
+        
+        workingHoursSchedule: "Horario de Trabajo",
+        scheduleType: "Tipo de Horario",
+        commonSchedule: "Horario Común (8,5h + 6h viernes)",
+        standardSchedule: "Horario Estándar (8h diarias)",
+        intensiveSchedule: "Horario Intensivo (6,5h diarias)",
+        autoDetectIntensive: "Detectar automáticamente el horario intensivo de agosto",
+        enableNotifications: "Activar notificaciones de finalización de jornada",
+        enableDebugLogs: "Activar registros de depuración en la consola",
+        
+        // Marcajes section
+        entriesAndExits: "Entradas y Salidas",
+        refreshMarcajesInfo: "Haz clic en \"Actualizar Marcajes\" para cargar las entradas y salidas de hoy",
+        todaysMarcajes: "Marcajes de Hoy",
+        entries: "Entradas",
+        exits: "Salidas",
+        presenceTimeLabel: "Tiempo de presencia",
+        offlineMode: "Modo Sin Conexión",
+        
+        // Problems section
+        problematicEntries: "Entradas Problemáticas",
+        doubleEntriesDetected: "Se han detectado entradas o salidas dobles. Por favor, revisa y corrige:",
+        
+        // Export section
+        exportMarcajes: "Exportar Marcajes",
+        chooseFormat: "Elige el formato de exportación:",
+        includeLabels: "Incluir etiquetas",
+        includeProblems: "Incluir problemas",
+        
+        // Messages
+        credentialsConfigured: "Credenciales configuradas",
+        noCredentialsConfigured: "No hay credenciales configuradas",
+        configurationSaved: "Configuración guardada correctamente",
+        problemsFixed: "¡Problemas corregidos! Los datos corregidos se han guardado.",
+        fixProblemsConfirm: "Esto corregirá automáticamente las entradas/salidas dobles basándose en la regla de los 5 minutos. ¿Continuar?",
+        usingCachedData: "Usando datos almacenados",
+        errorPrefix: "Error",
+        noCredentialsAvailable: "No hay credenciales disponibles. Por favor, extrae las credenciales primero.",
+        failedToFetch: "Error al obtener los datos de marcajes",
+        
+        // About section
+        aboutCucoExt: "Acerca de CucoExt",
+        version: "Versión 2.0.0 - Extensión de Chrome",
+        features: "Características",
+        featuresList: [
+            "Seguimiento de tiempo de trabajo en tiempo real",
+            "Soporte para horarios laborales españoles",
+            "Gestión automática de credenciales",
+            "Cálculo del tiempo de presencia",
+            "Soporte para múltiples horarios",
+            "Monitorización en segundo plano",
+            "Indicadores visuales de estado"
+        ],
+        license: "Licencia",
+        licenseInfo: "CC BY-NC-SA 4.0 - Creative Commons",
+        personalUseAllowed: "Uso personal permitido",
+        commercialUseRequiresPermission: "El uso comercial requiere permiso",
+        support: "Soporte",
+        supportInfo: "Para problemas o licencias comerciales:",
+        technicalDetails: "Detalles Técnicos",
+        platform: "Plataforma",
+        platformInfo: "Extensión de Chrome (Manifest V3)",
+        target: "Objetivo",
+        targetInfo: "cuco360.cucorent.com",
+        storage: "Almacenamiento",
+        storageInfo: "Almacenamiento Local de Chrome",
+        permissions: "Permisos",
+        permissionsInfo: "activeTab, storage, alarms, notifications",
+        
+        // Timesheet reminder
+        timesheetReminder: "Recordatorio de Hoja de Horas",
+        workHoursComplete: "¡Tus horas de trabajo están completas! No olvides rellenar tu hoja de horas."
+    }
+};
+
+// Current language and translation functions
+let currentLanguage = 'en';
+
+function getBrowserLanguage() {
+    const lang = navigator.language.toLowerCase();
+    if (lang.startsWith('es')) return 'es';
+    if (lang.startsWith('ca')) return 'ca';
+    return 'en';
+}
+
+function t(key) {
+    const keys = key.split('.');
+    let value = translations[currentLanguage];
+    
+    for (const k of keys) {
+        if (value && typeof value === 'object') {
+            value = value[k];
+        } else {
+            break;
+        }
+    }
+    
+    // Fallback to English if key not found
+    if (value === undefined) {
+        value = translations.en;
+        for (const k of keys) {
+            if (value && typeof value === 'object') {
+                value = value[k];
+            } else {
+                break;
+            }
+        }
+    }
+    
+    return value || key;
+}
+
 // DOM elements
 let elements = {};
 
 // Initialize popup
 document.addEventListener('DOMContentLoaded', function() {
     initializeElements();
+    loadLanguageSettings();
     loadCachedSession();
     loadInitialState();
     setupEventListeners();
 });
+
+async function loadLanguageSettings() {
+    try {
+        const storage = await chrome.storage.local.get(['selectedLanguage']);
+        const savedLanguage = storage.selectedLanguage;
+        
+        if (savedLanguage === 'auto' || !savedLanguage) {
+            currentLanguage = getBrowserLanguage();
+        } else {
+            currentLanguage = savedLanguage;
+        }
+        
+        updateAllUIText();
+        
+        // Set language select value if element exists
+        const languageSelect = document.getElementById('languageSelect');
+        if (languageSelect) {
+            languageSelect.value = savedLanguage || 'auto';
+        }
+    } catch (error) {
+        console.error('Error loading language settings:', error);
+        currentLanguage = 'en';
+        updateAllUIText();
+    }
+}
+
+function updateAllUIText() {
+    // Update header
+    const headerTitle = document.querySelector('.header h1');
+    const headerSubtitle = document.querySelector('.header p');
+    if (headerTitle) headerTitle.textContent = t('title');
+    if (headerSubtitle) headerSubtitle.textContent = t('subtitle');
+    
+    // Update initial status messages
+    if (elements.statusMessage) elements.statusMessage.textContent = t('loading');
+    if (elements.statusDetails) elements.statusDetails.textContent = t('checkingStatus');
+    
+    // Update tab labels
+    const statusTabBtn = document.getElementById('statusTab-btn');
+    const marcajesTabBtn = document.getElementById('marcajesTab-btn');
+    const credentialsTabBtn = document.getElementById('credentialsTab-btn');
+    
+    if (statusTabBtn) statusTabBtn.textContent = t('status');
+    if (marcajesTabBtn) marcajesTabBtn.textContent = t('marcajes');
+    if (credentialsTabBtn) credentialsTabBtn.textContent = t('credentials');
+    
+    // Update time labels
+    const timeLabels = document.querySelectorAll('.time-label');
+    timeLabels.forEach((label, index) => {
+        switch(index) {
+            case 0: label.textContent = t('workingTime') + ':'; break;
+            case 1: label.textContent = t('presenceTime') + ':'; break;
+            case 2: label.textContent = t('remaining') + ':'; break;
+            case 3: label.textContent = t('theoreticalExit') + ':'; break;
+        }
+    });
+    
+    // Update buttons
+    const refreshText = document.getElementById('refreshText');
+    if (refreshText) refreshText.textContent = t('refreshStatus');
+    
+    const openTimesheetBtn = document.getElementById('openTimeSheet-btn');
+    if (openTimesheetBtn) {
+        openTimesheetBtn.innerHTML = '🕒 ' + t('openTimesheet');
+    }
+    
+    const extractCredBtn = document.getElementById('extractCredentials-btn');
+    if (extractCredBtn) {
+        extractCredBtn.innerHTML = '🚀 ' + t('autoExtractCredentials');
+    }
+    
+    const testExtractionBtn = document.getElementById('testExtraction-btn');
+    if (testExtractionBtn) {
+        testExtractionBtn.innerHTML = '🧪 ' + t('testCurrentPage');
+    }
+    
+    const saveCredBtn = document.getElementById('saveCredentials-btn');
+    if (saveCredBtn) saveCredBtn.textContent = t('saveCredentials');
+    
+    const clearCredBtn = document.getElementById('clearCredentials-btn');
+    if (clearCredBtn) clearCredBtn.textContent = t('clearCredentials');
+    
+    const saveConfigBtn = document.getElementById('saveConfiguration-btn');
+    if (saveConfigBtn) saveConfigBtn.textContent = t('saveConfiguration');
+    
+    const refreshMarcajesBtn = document.getElementById('refreshMarcajes-btn');
+    if (refreshMarcajesBtn) {
+        refreshMarcajesBtn.innerHTML = '🔄 ' + t('refreshMarcajes');
+    }
+    
+    const exportMarcajesBtn = document.getElementById('exportMarcajes-btn');
+    if (exportMarcajesBtn) {
+        exportMarcajesBtn.innerHTML = '📁 ' + t('export');
+    }
+    
+    const fixProblemsBtn = document.getElementById('fixProblems-btn');
+    if (fixProblemsBtn) {
+        fixProblemsBtn.innerHTML = '🔧 ' + t('fixProblems');
+    }
+    
+    // Update section titles
+    updateSectionTitles();
+    
+    // Update form labels and placeholders
+    updateFormElements();
+    
+    // Update About section
+    updateAboutSection();
+    
+    // Update any existing messages
+    updateExistingMessages();
+}
+
+function updateSectionTitles() {
+    const sectionTitles = document.querySelectorAll('.section-title');
+    sectionTitles.forEach(title => {
+        const text = title.textContent.toLowerCase();
+        if (text.includes('language') || text.includes('idioma')) {
+            title.textContent = t('languageLabel');
+        } else if (text.includes('working hours') || text.includes('horario')) {
+            title.textContent = t('workingHoursSchedule');
+        } else if (text.includes('automated') || text.includes('automática')) {
+            title.textContent = t('automatedExtraction');
+        } else if (text.includes('manual') || text.includes('credenciales manual')) {
+            title.textContent = t('manualCredentials');
+        } else if (text.includes('entradas') || text.includes('entries')) {
+            title.textContent = t('entriesAndExits');
+        } else if (text.includes('about') || text.includes('sobre')) {
+            title.textContent = t('aboutCucoExt');
+        }
+    });
+}
+
+function updateFormElements() {
+    // Language section
+    const languageSectionTitle = document.getElementById('languageSectionTitle');
+    if (languageSectionTitle) languageSectionTitle.textContent = t('languageLabel');
+    
+    const languageLabel = document.getElementById('languageLabel');
+    if (languageLabel) languageLabel.textContent = t('languageLabel');
+    
+    // Working hours section
+    const workingHoursTitle = document.getElementById('workingHoursScheduleTitle');
+    if (workingHoursTitle) workingHoursTitle.textContent = t('workingHoursSchedule');
+    
+    const scheduleTypeLabel = document.getElementById('scheduleTypeLabel');
+    if (scheduleTypeLabel) scheduleTypeLabel.textContent = t('scheduleType');
+    
+    // Language select options
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        const options = languageSelect.querySelectorAll('option');
+        options.forEach(option => {
+            switch(option.value) {
+                case 'auto': option.textContent = t('autoBrowserLanguage'); break;
+                case 'en': option.textContent = t('english'); break;
+                case 'ca': option.textContent = t('catalan'); break;
+                case 'es': option.textContent = t('spanish'); break;
+            }
+        });
+    }
+    
+    // Working hours select options
+    const workingHoursSelect = document.getElementById('workingHoursSelect');
+    if (workingHoursSelect) {
+        const options = workingHoursSelect.querySelectorAll('option');
+        options.forEach(option => {
+            switch(option.value) {
+                case 'common': option.textContent = t('commonSchedule'); break;
+                case 'standard': option.textContent = t('standardSchedule'); break;
+                case 'intensive': option.textContent = t('intensiveSchedule'); break;
+            }
+        });
+    }
+    
+    // Checkbox labels using the new span IDs
+    const autoDetectLabel = document.getElementById('autoDetectIntensiveLabel');
+    if (autoDetectLabel) autoDetectLabel.textContent = t('autoDetectIntensive');
+    
+    const notificationsLabel = document.getElementById('notificationsEnabledLabel');
+    if (notificationsLabel) notificationsLabel.textContent = t('enableNotifications');
+    
+    const debugLabel = document.getElementById('debugLogsEnabledLabel');
+    if (debugLabel) debugLabel.textContent = t('enableDebugLogs');
+    
+    // Input placeholders
+    const tokenInput = document.getElementById('tokenInput');
+    if (tokenInput) tokenInput.placeholder = t('tokenPlaceholder');
+    
+    const cookiesInput = document.getElementById('cookiesInput');
+    if (cookiesInput) cookiesInput.placeholder = t('cookiesPlaceholder');
+    
+    const clientCodeInput = document.getElementById('clientCodeInput');
+    if (clientCodeInput) clientCodeInput.placeholder = t('clientCodePlaceholder');
+}
+
+function updateAboutSection() {
+    // Update About section content
+    const logoSection = document.querySelector('.logo-section h3');
+    if (logoSection) logoSection.textContent = '🎯 ' + t('title') + ' - ' + t('subtitle');
+    
+    const versionElement = document.querySelector('.version');
+    if (versionElement) versionElement.textContent = t('version');
+    
+    const featuresTitle = document.querySelector('.features-list h4');
+    if (featuresTitle) featuresTitle.textContent = '✨ ' + t('features');
+    
+    const featuresList = document.querySelector('.features-list ul');
+    if (featuresList) {
+        featuresList.innerHTML = '';
+        t('featuresList').forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            featuresList.appendChild(li);
+        });
+    }
+    
+    const licenseTitle = document.querySelector('.license-section h4');
+    if (licenseTitle) licenseTitle.textContent = '📄 ' + t('license');
+    
+    const licenseText = document.querySelector('.license-text');
+    if (licenseText) {
+        licenseText.innerHTML = `
+            ✅ ${t('personalUseAllowed')}<br>
+            ❌ ${t('commercialUseRequiresPermission')}
+        `;
+    }
+    
+    const supportTitle = document.querySelector('.support-section h4');
+    if (supportTitle) supportTitle.textContent = '📧 ' + t('support');
+    
+    const technicalTitle = document.querySelector('.technical-info h4');
+    if (technicalTitle) technicalTitle.textContent = '🔧 ' + t('technicalDetails');
+    
+    const techDetails = document.querySelector('.tech-details');
+    if (techDetails) {
+        techDetails.innerHTML = `
+            <p><strong>${t('platform')}:</strong> ${t('platformInfo')}</p>
+            <p><strong>${t('target')}:</strong> ${t('targetInfo')}</p>
+            <p><strong>${t('storage')}:</strong> ${t('storageInfo')}</p>
+            <p><strong>${t('permissions')}:</strong> ${t('permissionsInfo')}</p>
+        `;
+    }
+}
+
+function updateExistingMessages() {
+    // Update any existing info messages
+    const marcajesInfoMessage = document.getElementById('marcajesInfoMessage');
+    if (marcajesInfoMessage) {
+        marcajesInfoMessage.textContent = t('refreshMarcajesInfo');
+    }
+    
+    // Update marcajes title
+    const marcajesTitle = document.getElementById('marcajesTitle');
+    if (marcajesTitle) {
+        marcajesTitle.textContent = t('todaysMarcajes');
+    }
+    
+    // Update problematic entries
+    const problematicEntriesTitle = document.getElementById('problematicEntriesTitle');
+    if (problematicEntriesTitle) {
+        problematicEntriesTitle.textContent = '⚠️ ' + t('problematicEntries');
+    }
+    
+    const doubleEntriesMessage = document.getElementById('doubleEntriesMessage');
+    if (doubleEntriesMessage) {
+        doubleEntriesMessage.textContent = t('doubleEntriesDetected');
+    }
+    
+    // Update timesheet reminder
+    const timesheetTitle = document.querySelector('#timesheetReminder .section-title');
+    if (timesheetTitle) timesheetTitle.textContent = '📋 ' + t('timesheetReminder');
+    
+    const timesheetText = document.querySelector('#timesheetReminder p');
+    if (timesheetText) timesheetText.textContent = t('workHoursComplete');
+    
+    // Update last update text
+    if (elements.lastUpdate && elements.lastUpdate.textContent.includes('Last updated') || 
+        elements.lastUpdate.textContent.includes('Última actualización') ||
+        elements.lastUpdate.textContent.includes('Última actualització')) {
+        const timestamp = elements.lastUpdate.textContent.split(': ')[1] || t('never');
+        elements.lastUpdate.textContent = t('lastUpdate') + ': ' + (timestamp === 'Never' || timestamp === 'Mai' || timestamp === 'Nunca' ? t('never') : timestamp);
+    }
+}
 
 function initializeElements() {
     elements = {
@@ -96,9 +838,9 @@ async function loadInitialState() {
         
         // Show if credentials are configured
         if (storage.credentials) {
-            showMessage(elements.credentialsMessage, 'Credentials configured', 'success');
+            showMessage(elements.credentialsMessage, t('credentialsConfigured'), 'success');
         } else {
-            showMessage(elements.credentialsMessage, 'No credentials configured', 'error');
+            showMessage(elements.credentialsMessage, t('noCredentialsConfigured'), 'error');
         }
         
     } catch (error) {
@@ -175,6 +917,27 @@ function setupEventListeners() {
     if (saveConfigBtn) {
         saveConfigBtn.addEventListener('click', saveConfiguration);
     }
+    
+    // Language selection handler
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        languageSelect.addEventListener('change', async (e) => {
+            const selectedLanguage = e.target.value;
+            
+            // Save language preference
+            await chrome.storage.local.set({ selectedLanguage: selectedLanguage });
+            
+            // Update current language
+            if (selectedLanguage === 'auto') {
+                currentLanguage = getBrowserLanguage();
+            } else {
+                currentLanguage = selectedLanguage;
+            }
+            
+            // Update all UI text
+            updateAllUIText();
+        });
+    }
 
     // Marcajes tab buttons
     const refreshMarcajesBtn = document.getElementById('refreshMarcajes-btn');
@@ -236,13 +999,13 @@ async function refreshStatus() {
             console.log('🔧 DEBUG: Updating status display with:', response.data);
             updateStatusDisplay(response.data);
             updateLastUpdateTime(new Date().toISOString());
-            showMessage(elements.credentialsMessage, 'Status refreshed successfully', 'success', 3000);
+            showMessage(elements.credentialsMessage, t('statusRefreshed'), 'success', 3000);
         } else {
             throw new Error(response.error || 'Failed to refresh status');
         }
     } catch (error) {
         console.error('🔧 DEBUG: Error refreshing status:', error);
-        showMessage(elements.credentialsMessage, `Error: ${error.message}`, 'error');
+        showMessage(elements.credentialsMessage, `${t('errorPrefix')}: ${error.message}`, 'error');
     } finally {
         setLoading(false);
     }
@@ -283,7 +1046,7 @@ function updateStatusDisplay(status) {
     
     // Update status message and details
     elements.statusMessage.textContent = getStatusTitle(status.status);
-    elements.statusDetails.textContent = status.message || 'No additional details';
+    elements.statusDetails.textContent = translateStatusMessage(status.message || 'No additional details');
     
     // Update working time details
     if (status.workingMinutes > 0 || status.remainingMinutes >= 0) {
@@ -318,17 +1081,47 @@ function updateStatusDisplay(status) {
 }
 
 function getStatusTitle(status) {
-    const titles = {
-        'WORKING': 'Currently Working',
-        'OUT_OF_OFFICE': 'Out of Office',
-        'CAN_LEAVE': 'Can Leave Now',
-        'TIME_TO_LEAVE': 'Time to Leave!',
-        'NOT_WORKING': 'Not Working',
-        'CREDENTIALS_EXPIRED': 'Credentials Expired',
-        'ERROR': 'Error'
+    const statusMap = {
+        'WORKING': t('keepWorking'),
+        'OUT_OF_OFFICE': t('notStarted'),
+        'CAN_LEAVE': t('canLeave'),
+        'TIME_TO_LEAVE': t('timeToLeave'),
+        'NOT_WORKING': t('notStarted'),
+        'CREDENTIALS_EXPIRED': t('errorPrefix'),
+        'ERROR': t('errorPrefix')
     };
     
-    return titles[status] || 'Unknown Status';
+    return statusMap[status] || status;
+}
+
+function translateStatusMessage(message) {
+    // Translate common status messages from core-integration
+    const messageMap = {
+        'No entry time detected': t('noEntryTimeDetected'),
+        'No additional details': t('noAdditionalDetails'),
+        'Can leave - requirements completed': t('canLeaveRequirementsCompleted'),
+        'Exactly time to leave!': t('exactlyTimeToLeave'),
+        'Credentials expired - click to refresh': t('credentialsExpiredClickRefresh')
+    };
+    
+    // Handle dynamic messages with patterns
+    if (message.includes('Out of office -') && message.includes('remaining')) {
+        const remainingPart = message.split('Out of office - ')[1];
+        return `${t('notStarted')} - ${remainingPart}`;
+    }
+    
+    if (message.includes('Working -') && message.includes('remaining')) {
+        const remainingPart = message.split('Working - ')[1];
+        return `${t('keepWorking')} - ${remainingPart}`;
+    }
+    
+    if (message.includes('Can leave in') && message.includes('minutes')) {
+        const minutesPart = message.split('Can leave in ')[1];
+        return `${t('canLeave')} en ${minutesPart}`;
+    }
+    
+    // Return translated message if found, otherwise return original
+    return messageMap[message] || message;
 }
 
 function formatMinutesToTime(minutes) {
@@ -353,6 +1146,11 @@ function formatSecondsToTime(seconds) {
 }
 
 function updateLastUpdateTime(timestamp) {
+    if (!timestamp) {
+        elements.lastUpdate.textContent = t('lastUpdate') + ': ' + t('never');
+        return;
+    }
+    
     const date = new Date(timestamp);
     const timeStr = date.toLocaleTimeString('en-US', { 
         hour12: false,
@@ -360,7 +1158,7 @@ function updateLastUpdateTime(timestamp) {
         minute: '2-digit',
         second: '2-digit'
     });
-    elements.lastUpdate.textContent = `Last updated: ${timeStr}`;
+    elements.lastUpdate.textContent = t('lastUpdate') + ': ' + timeStr;
 }
 
 // Test extraction on current page
@@ -425,7 +1223,7 @@ async function testCurrentPageExtraction() {
     } catch (error) {
         console.error('🔧 DEBUG: Test extraction error:', error);
         showMessage(elements.credentialsMessage, 
-            `Error: ${error.message}`, 
+            `${t('errorPrefix')}: ${error.message}`, 
             'error', 5000);
     }
 }
@@ -500,7 +1298,7 @@ async function extractCredentials() {
         
     } catch (error) {
         console.error('🔧 DEBUG: Error in extractCredentials:', error);
-        showMessage(elements.credentialsMessage, `Error: ${error.message}`, 'error');
+        showMessage(elements.credentialsMessage, `${t('errorPrefix')}: ${error.message}`, 'error');
     }
 }
 
@@ -641,7 +1439,7 @@ async function saveCredentials() {
         
     } catch (error) {
         console.error('🔧 DEBUG: Error saving credentials:', error);
-        showMessage(elements.credentialsMessage, `Error: ${error.message}`, 'error');
+        showMessage(elements.credentialsMessage, `${t('errorPrefix')}: ${error.message}`, 'error');
     }
 }
 
@@ -658,7 +1456,7 @@ async function clearCredentials() {
         }
     } catch (error) {
         console.error('Error clearing credentials:', error);
-        showMessage(elements.credentialsMessage, `Error: ${error.message}`, 'error');
+        showMessage(elements.credentialsMessage, `${t('errorPrefix')}: ${error.message}`, 'error');
     }
 }
 
@@ -682,13 +1480,13 @@ async function saveConfiguration() {
                 notificationsEnabled: notificationsEnabled,
                 debugLogsEnabled: debugLogsEnabled
             });
-            showMessage(elements.configMessage, 'Configuration saved successfully', 'success');
+            showMessage(elements.configMessage, t('configurationSaved'), 'success');
         } else {
             throw new Error(response.error || 'Failed to save configuration');
         }
     } catch (error) {
         console.error('Error saving configuration:', error);
-        showMessage(elements.configMessage, `Error: ${error.message}`, 'error');
+        showMessage(elements.configMessage, `${t('errorPrefix')}: ${error.message}`, 'error');
     }
 }
 
@@ -786,7 +1584,7 @@ async function refreshMarcajes() {
         const credentials = storage.credentials;
         
         if (!credentials || !credentials.token) {
-            throw new Error('No credentials available. Please extract credentials first.');
+            throw new Error(t('noCredentialsAvailable'));
         }
         
         // Fetch fresh marcajes data
@@ -815,7 +1613,7 @@ async function refreshMarcajes() {
             displayMarcajes(cachedMarcajes);
             updateMarcajesStatus(cachedMarcajes);
         } else {
-            throw new Error(response.error || 'Failed to fetch marcajes data');
+            throw new Error(response.error || t('failedToFetch'));
         }
         
     } catch (error) {
@@ -825,9 +1623,9 @@ async function refreshMarcajes() {
         if (cachedMarcajes) {
             displayMarcajes(cachedMarcajes);
             updateMarcajesStatus(cachedMarcajes, true);
-            showMessage(elements.marcajesContainer, `Using cached data: ${error.message}`, 'warning');
+            showMessage(elements.marcajesContainer, `${t('usingCachedData')}: ${error.message}`, 'warning');
         } else {
-            showMessage(elements.marcajesContainer, `Error: ${error.message}`, 'error');
+            showMessage(elements.marcajesContainer, `${t('errorPrefix')}: ${error.message}`, 'error');
         }
     } finally {
         refreshBtn.textContent = originalText;
@@ -914,9 +1712,9 @@ function displayMarcajes(marcajes) {
     const presenceTime = calculatePresenceTime(processed);
     
     elements.marcajesStats.innerHTML = `
-        <div>Entradas: ${totalEntries} | Salidas: ${totalExits}</div>
-        <div>Tiempo presencia: ${presenceTime}</div>
-        ${isOfflineMode ? '<div class="offline-indicator">📱 Offline Mode</div>' : ''}
+        <div>${t('entries')}: ${totalEntries} | ${t('exits')}: ${totalExits}</div>
+        <div>${t('presenceTimeLabel')}: ${presenceTime}</div>
+        ${isOfflineMode ? `<div class="offline-indicator">📱 ${t('offlineMode')}</div>` : ''}
     `;
     
     // Display entries
@@ -1155,7 +1953,7 @@ function getEntryLabel(entry, index) {
 
 // Fix problems functionality
 function fixMarcajesProblems() {
-    if (confirm('This will automatically fix double entries/exits based on 5-minute rule. Continue?')) {
+    if (confirm(t('fixProblemsConfirm'))) {
         const { processed } = processMarcajesData(cachedMarcajes);
         
         // Update cached data with fixed version
@@ -1177,7 +1975,7 @@ function fixMarcajesProblems() {
         displayMarcajes(cachedMarcajes);
         updateMarcajesStatus(cachedMarcajes);
         
-        alert('Problems fixed! The corrected data has been saved.');
+        alert(t('problemsFixed'));
     }
 }
 

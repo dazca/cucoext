@@ -653,9 +653,9 @@
         <!-- Config Tab -->
         <div class="tab-content" id="configTab">
             <div class="section">
-                <div class="section-title">Language / Idioma</div>
+                <div class="section-title" id="languageSectionTitle">Language / Idioma</div>
                 <div class="form-group">
-                    <label class="form-label">Interface Language</label>
+                    <label class="form-label" id="languageLabel">Interface Language</label>
                     <select class="form-select" id="languageSelect">
                         <option value="auto">Auto (Browser Language)</option>
                         <option value="en">English</option>
@@ -666,9 +666,9 @@
             </div>
             
             <div class="section">
-                <div class="section-title">Working Hours Schedule</div>
+                <div class="section-title" id="workingHoursScheduleTitle">Working Hours Schedule</div>
                 <div class="form-group">
-                    <label class="form-label">Schedule Type</label>
+                    <label class="form-label" id="scheduleTypeLabel">Schedule Type</label>
                     <select class="form-select" id="workingHoursSelect">
                         <option value="common">Common Schedule (8.5h + 6h Friday)</option>
                         <option value="standard">Standard Schedule (8h daily)</option>
@@ -677,17 +677,17 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">
-                        <input type="checkbox" id="autoDetectIntensive" checked> Auto-detect August intensive schedule
+                        <input type="checkbox" id="autoDetectIntensive" checked> <span id="autoDetectIntensiveLabel">Auto-detect August intensive schedule</span>
                     </label>
                 </div>
                 <div class="form-group">
                     <label class="form-label">
-                        <input type="checkbox" id="notificationsEnabled"> Enable work completion notifications
+                        <input type="checkbox" id="notificationsEnabled"> <span id="notificationsEnabledLabel">Enable work completion notifications</span>
                     </label>
                 </div>
                 <div class="form-group">
                     <label class="form-label">
-                        <input type="checkbox" id="debugLogsEnabled"> Enable debug console logs
+                        <input type="checkbox" id="debugLogsEnabled"> <span id="debugLogsEnabledLabel">Enable debug console logs</span>
                     </label>
                 </div>
                 <button class="button button-primary" id="saveConfiguration-btn">Save Configuration</button>

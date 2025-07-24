@@ -11,15 +11,333 @@
  * License: https://creativecommons.org/licenses/by-nc-sa/4.0/
  */
 
+// Translations object - native texts for each language
+const translations = {
+    en: {
+        // Header and basic info
+        title: "CucoExt", subtitle: "Smart Work Time Tracker",
+        
+        // Status messages
+        loading: "Loading...", checkingStatus: "Checking work status...",
+        statusRefreshed: "Status refreshed successfully", lastUpdate: "Last updated", never: "Never",
+        
+        // Tab names
+        status: "Status", marcajes: "Marcajes", credentials: "Credentials",
+        
+        // Time labels
+        workingTime: "Working Time", presenceTime: "Presence Time", 
+        remaining: "Remaining", theoreticalExit: "Expected Exit",
+        
+        // Status messages
+        canLeave: "You can leave work", timeToLeave: "Time to leave",
+        keepWorking: "Continue working", notStarted: "Work not started",
+        
+        // Status detail messages
+        noEntryTimeDetected: "No entry time detected", noAdditionalDetails: "No additional details",
+        canLeaveRequirementsCompleted: "Can leave - requirements completed",
+        exactlyTimeToLeave: "Exactly time to leave!",
+        credentialsExpiredClickRefresh: "Credentials expired - click to refresh",
+        
+        // Buttons
+        refreshStatus: "Refresh Status", openTimesheet: "Open Timesheet",
+        autoExtractCredentials: "Auto-Extract Credentials", testCurrentPage: "Test Current Page",
+        saveCredentials: "Save Credentials", clearCredentials: "Clear Credentials",
+        saveConfiguration: "Save Configuration", refreshMarcajes: "Refresh Records",
+        export: "Export", fixProblems: "Fix Issues",
+        
+        // Configuration
+        languageLabel: "Interface Language", autoBrowserLanguage: "Auto (Browser Language)",
+        english: "English", catalan: "Català", spanish: "Español",
+        workingHoursSchedule: "Working Hours Schedule", scheduleType: "Schedule Type",
+        commonSchedule: "Common Schedule (8.5h + 6h Friday)",
+        standardSchedule: "Standard Schedule (8h daily)",
+        intensiveSchedule: "Intensive Schedule (6.5h daily)",
+        autoDetectIntensive: "Auto-detect August intensive schedule",
+        enableNotifications: "Enable work completion notifications",
+        enableDebugLogs: "Enable debug console logs",
+        
+        // Messages
+        credentialsConfigured: "Credentials configured",
+        noCredentialsConfigured: "No credentials configured",
+        configurationSaved: "Configuration saved successfully",
+        errorPrefix: "Error", timesheetReminder: "Timesheet Reminder",
+        workHoursComplete: "Your work hours are complete! Don't forget to fill your timesheet."
+    },
+    
+    ca: {
+        // Header and basic info
+        title: "CucoExt", subtitle: "Control Intel·ligent de Jornada",
+        
+        // Status messages
+        loading: "Carregant...", checkingStatus: "Comprovant estat de la jornada...",
+        statusRefreshed: "Estat actualitzat correctament", lastUpdate: "Última actualització", never: "Mai",
+        
+        // Tab names
+        status: "Estat", marcajes: "Marcatges", credentials: "Credencials",
+        
+        // Time labels
+        workingTime: "Temps de Treball", presenceTime: "Temps de Presència",
+        remaining: "Restant", theoreticalExit: "Sortida Prevista",
+        
+        // Status messages
+        canLeave: "Pots marxar de la feina", timeToLeave: "És hora de marxar",
+        keepWorking: "Continua treballant", notStarted: "Jornada no iniciada",
+        
+        // Status detail messages
+        noEntryTimeDetected: "No s'ha detectat hora d'entrada", noAdditionalDetails: "Sense detalls addicionals",
+        canLeaveRequirementsCompleted: "Pots marxar - requisits completats",
+        exactlyTimeToLeave: "És exactament l'hora de marxar!",
+        credentialsExpiredClickRefresh: "Credencials caducades - clica per actualitzar",
+        
+        // Buttons
+        refreshStatus: "Actualitzar Estat", openTimesheet: "Obrir Full d'Hores",
+        autoExtractCredentials: "Extreure Credencials Automàticament", testCurrentPage: "Provar Pàgina Actual",
+        saveCredentials: "Desar Credencials", clearCredentials: "Esborrar Credencials",
+        saveConfiguration: "Desar Configuració", refreshMarcajes: "Actualitzar Marcatges",
+        export: "Exportar", fixProblems: "Corregir Problemes",
+        
+        // Configuration
+        languageLabel: "Idioma de la Interfície", autoBrowserLanguage: "Automàtic (Idioma del Navegador)",
+        english: "English", catalan: "Català", spanish: "Español",
+        workingHoursSchedule: "Horari de Treball", scheduleType: "Tipus d'Horari",
+        commonSchedule: "Horari Comú (8,5h + 6h divendres)",
+        standardSchedule: "Horari Estàndard (8h diàries)",
+        intensiveSchedule: "Horari Intensiu (6,5h diàries)",
+        autoDetectIntensive: "Horari intensiu d'agost automàtic",
+        enableNotifications: "Notificacions de fi de jornada",
+        enableDebugLogs: "Activar registres de depuració a la consola",
+        
+        // Messages
+        credentialsConfigured: "Credencials configurades",
+        noCredentialsConfigured: "No hi ha credencials configurades",
+        configurationSaved: "Configuració desada correctament",
+        errorPrefix: "Error", timesheetReminder: "Recordatori de Full d'Hores",
+        workHoursComplete: "Les teves hores de treball estan completes! No oblidis omplir el teu full d'hores."
+    },
+    
+    es: {
+        // Header and basic info
+        title: "CucoExt", subtitle: "Control Inteligente de Jornada",
+        
+        // Status messages
+        loading: "Cargando...", checkingStatus: "Comprobando estado de la jornada...",
+        statusRefreshed: "Estado actualizado correctamente", lastUpdate: "Última actualización", never: "Nunca",
+        
+        // Tab names
+        status: "Estado", marcajes: "Marcajes", credentials: "Credenciales",
+        
+        // Time labels
+        workingTime: "Tiempo de Trabajo", presenceTime: "Tiempo de Presencia",
+        remaining: "Restante", theoreticalExit: "Salida Prevista",
+        
+        // Status messages
+        canLeave: "Puedes marcharte del trabajo", timeToLeave: "Es hora de marcharse",
+        keepWorking: "Continúa trabajando", notStarted: "Jornada no iniciada",
+        
+        // Status detail messages
+        noEntryTimeDetected: "No se ha detectado hora de entrada", noAdditionalDetails: "Sin detalles adicionales",
+        canLeaveRequirementsCompleted: "Puedes marcharte - requisitos completados",
+        exactlyTimeToLeave: "¡Es exactamente la hora de marcharse!",
+        credentialsExpiredClickRefresh: "Credenciales caducadas - clica para actualizar",
+        
+        // Buttons
+        refreshStatus: "Actualizar Estado", openTimesheet: "Abrir Hoja de Horas",
+        autoExtractCredentials: "Extraer Credenciales Automáticamente", testCurrentPage: "Probar Página Actual",
+        saveCredentials: "Guardar Credenciales", clearCredentials: "Borrar Credenciales",
+        saveConfiguration: "Guardar Configuración", refreshMarcajes: "Actualizar Marcajes",
+        export: "Exportar", fixProblems: "Corregir Problemas",
+        
+        // Configuration
+        languageLabel: "Idioma de la Interfaz", autoBrowserLanguage: "Automático (Idioma del Navegador)",
+        english: "English", catalan: "Català", spanish: "Español",
+        workingHoursSchedule: "Horario de Trabajo", scheduleType: "Tipo de Horario",
+        commonSchedule: "Horario Común (8,5h + 6h viernes)",
+        standardSchedule: "Horario Estándar (8h diarias)",
+        intensiveSchedule: "Horario Intensivo (6,5h diarias)",
+        autoDetectIntensive: "Detectar automáticamente el horario intensivo de agosto",
+        enableNotifications: "Activar notificaciones de finalización de jornada",
+        enableDebugLogs: "Activar registros de depuración en la consola",
+        
+        // Messages
+        credentialsConfigured: "Credenciales configuradas",
+        noCredentialsConfigured: "No hay credenciales configuradas",
+        configurationSaved: "Configuración guardada correctamente",
+        errorPrefix: "Error", timesheetReminder: "Recordatorio de Hoja de Horas",
+        workHoursComplete: "¡Tus horas de trabajo están completas! No olvides rellenar tu hoja de horas."
+    }
+};
+
+// Current language and translation functions
+let currentLanguage = 'en';
+
+function getBrowserLanguage() {
+    const lang = navigator.language.toLowerCase();
+    if (lang.startsWith('es')) return 'es';
+    if (lang.startsWith('ca')) return 'ca';
+    return 'en';
+}
+
+function t(key) {
+    const value = translations[currentLanguage][key];
+    return value !== undefined ? value : (translations.en[key] || key);
+}
+
 // DOM elements
 let elements = {};
 
 // Initialize popup
 document.addEventListener('DOMContentLoaded', function() {
     initializeElements();
+    loadLanguageSettings();
     loadInitialState();
     setupEventListeners();
 });
+
+async function loadLanguageSettings() {
+    try {
+        const storage = await browser.storage.local.get(['selectedLanguage']);
+        const savedLanguage = storage.selectedLanguage;
+        
+        if (savedLanguage === 'auto' || !savedLanguage) {
+            currentLanguage = getBrowserLanguage();
+        } else {
+            currentLanguage = savedLanguage;
+        }
+        
+        updateAllUIText();
+        
+        const languageSelect = document.getElementById('languageSelect');
+        if (languageSelect) {
+            languageSelect.value = savedLanguage || 'auto';
+        }
+    } catch (error) {
+        console.error('Error loading language settings:', error);
+        currentLanguage = 'en';
+        updateAllUIText();
+    }
+}
+
+function updateAllUIText() {
+    // Update header
+    const headerTitle = document.querySelector('.header h1');
+    const headerSubtitle = document.querySelector('.header p');
+    if (headerTitle) headerTitle.textContent = t('title');
+    if (headerSubtitle) headerSubtitle.textContent = t('subtitle');
+    
+    // Update status messages
+    if (elements.statusMessage) elements.statusMessage.textContent = t('loading');
+    if (elements.statusDetails) elements.statusDetails.textContent = t('checkingStatus');
+    
+    // Update tab labels
+    const statusTabBtn = document.getElementById('statusTab-btn');
+    const marcajesTabBtn = document.getElementById('marcajesTab-btn');
+    const credentialsTabBtn = document.getElementById('credentialsTab-btn');
+    
+    if (statusTabBtn) statusTabBtn.textContent = t('status');
+    if (marcajesTabBtn) marcajesTabBtn.textContent = t('marcajes');
+    if (credentialsTabBtn) credentialsTabBtn.textContent = t('credentials');
+    
+    // Update time labels
+    const timeLabels = document.querySelectorAll('.time-label');
+    timeLabels.forEach((label, index) => {
+        switch(index) {
+            case 0: label.textContent = t('workingTime') + ':'; break;
+            case 1: label.textContent = t('presenceTime') + ':'; break;
+            case 2: label.textContent = t('remaining') + ':'; break;
+            case 3: label.textContent = t('theoreticalExit') + ':'; break;
+        }
+    });
+    
+    // Update buttons
+    const refreshText = document.getElementById('refreshText');
+    if (refreshText) refreshText.textContent = t('refreshStatus');
+    
+    const openTimesheetBtn = document.getElementById('openTimeSheet-btn');
+    if (openTimesheetBtn) openTimesheetBtn.innerHTML = '🕒 ' + t('openTimesheet');
+    
+    const extractCredBtn = document.getElementById('extractCredentials-btn');
+    if (extractCredBtn) extractCredBtn.innerHTML = '🚀 ' + t('autoExtractCredentials');
+    
+    const testExtractionBtn = document.getElementById('testExtraction-btn');
+    if (testExtractionBtn) testExtractionBtn.innerHTML = '🧪 ' + t('testCurrentPage');
+    
+    const saveCredBtn = document.getElementById('saveCredentials-btn');
+    if (saveCredBtn) saveCredBtn.textContent = t('saveCredentials');
+    
+    const clearCredBtn = document.getElementById('clearCredentials-btn');
+    if (clearCredBtn) clearCredBtn.textContent = t('clearCredentials');
+    
+    const saveConfigBtn = document.getElementById('saveConfiguration-btn');
+    if (saveConfigBtn) saveConfigBtn.textContent = t('saveConfiguration');
+    
+    // Update form elements
+    updateFormElements();
+    
+    // Update existing messages
+    updateExistingMessages();
+}
+
+function updateFormElements() {
+    // Language section
+    const languageSectionTitle = document.getElementById('languageSectionTitle');
+    if (languageSectionTitle) languageSectionTitle.textContent = t('languageLabel');
+    
+    const languageLabel = document.getElementById('languageLabel');
+    if (languageLabel) languageLabel.textContent = t('languageLabel');
+    
+    // Working hours section
+    const workingHoursTitle = document.getElementById('workingHoursScheduleTitle');
+    if (workingHoursTitle) workingHoursTitle.textContent = t('workingHoursSchedule');
+    
+    const scheduleTypeLabel = document.getElementById('scheduleTypeLabel');
+    if (scheduleTypeLabel) scheduleTypeLabel.textContent = t('scheduleType');
+    
+    // Language select options
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        const options = languageSelect.querySelectorAll('option');
+        options.forEach(option => {
+            switch(option.value) {
+                case 'auto': option.textContent = t('autoBrowserLanguage'); break;
+                case 'en': option.textContent = t('english'); break;
+                case 'ca': option.textContent = t('catalan'); break;
+                case 'es': option.textContent = t('spanish'); break;
+            }
+        });
+    }
+    
+    // Working hours select options
+    const workingHoursSelect = document.getElementById('workingHoursSelect');
+    if (workingHoursSelect) {
+        const options = workingHoursSelect.querySelectorAll('option');
+        options.forEach(option => {
+            switch(option.value) {
+                case 'common': option.textContent = t('commonSchedule'); break;
+                case 'standard': option.textContent = t('standardSchedule'); break;
+                case 'intensive': option.textContent = t('intensiveSchedule'); break;
+            }
+        });
+    }
+    
+    // Checkbox labels using the new span IDs
+    const autoDetectLabel = document.getElementById('autoDetectIntensiveLabel');
+    if (autoDetectLabel) autoDetectLabel.textContent = t('autoDetectIntensive');
+    
+    const notificationsLabel = document.getElementById('notificationsEnabledLabel');
+    if (notificationsLabel) notificationsLabel.textContent = t('enableNotifications');
+    
+    const debugLabel = document.getElementById('debugLogsEnabledLabel');
+    if (debugLabel) debugLabel.textContent = t('enableDebugLogs');
+}
+
+function updateExistingMessages() {
+    // Update timesheet reminder
+    const timesheetTitle = document.querySelector('#timesheetReminder .section-title');
+    if (timesheetTitle) timesheetTitle.textContent = '📋 ' + t('timesheetReminder');
+    
+    const timesheetText = document.querySelector('#timesheetReminder p');
+    if (timesheetText) timesheetText.textContent = t('workHoursComplete');
+}
 
 function initializeElements() {
     elements = {
@@ -165,6 +483,27 @@ function setupEventListeners() {
     if (saveConfigBtn) {
         saveConfigBtn.addEventListener('click', saveConfiguration);
     }
+    
+    // Language selection handler
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        languageSelect.addEventListener('change', async (e) => {
+            const selectedLanguage = e.target.value;
+            
+            // Save language preference
+            await browser.storage.local.set({ selectedLanguage: selectedLanguage });
+            
+            // Update current language
+            if (selectedLanguage === 'auto') {
+                currentLanguage = getBrowserLanguage();
+            } else {
+                currentLanguage = selectedLanguage;
+            }
+            
+            // Update all UI text
+            updateAllUIText();
+        });
+    }
 }
 
 // Tab management
@@ -198,7 +537,7 @@ async function refreshStatus() {
             console.log('🔧 DEBUG: Updating status display with:', response.data);
             updateStatusDisplay(response.data);
             updateLastUpdateTime(new Date().toISOString());
-            showMessage(elements.credentialsMessage, 'Status refreshed successfully', 'success', 3000);
+            showMessage(elements.credentialsMessage, t('statusRefreshed'), 'success', 3000);
         } else {
             throw new Error(response.error || 'Failed to refresh status');
         }
@@ -245,7 +584,7 @@ function updateStatusDisplay(status) {
     
     // Update status message and details
     elements.statusMessage.textContent = getStatusTitle(status.status);
-    elements.statusDetails.textContent = status.message || 'No additional details';
+    elements.statusDetails.textContent = translateStatusMessage(status.message || 'No additional details');
     
     // Update working time details
     if (status.workingMinutes > 0 || status.remainingMinutes >= 0) {
@@ -280,17 +619,47 @@ function updateStatusDisplay(status) {
 }
 
 function getStatusTitle(status) {
-    const titles = {
-        'WORKING': 'Currently Working',
-        'OUT_OF_OFFICE': 'Out of Office',
-        'CAN_LEAVE': 'Can Leave Now',
-        'TIME_TO_LEAVE': 'Time to Leave!',
-        'NOT_WORKING': 'Not Working',
-        'CREDENTIALS_EXPIRED': 'Credentials Expired',
-        'ERROR': 'Error'
+    const statusMap = {
+        'WORKING': t('keepWorking'),
+        'OUT_OF_OFFICE': t('notStarted'),
+        'CAN_LEAVE': t('canLeave'),
+        'TIME_TO_LEAVE': t('timeToLeave'),
+        'NOT_WORKING': t('notStarted'),
+        'CREDENTIALS_EXPIRED': t('errorPrefix'),
+        'ERROR': t('errorPrefix')
     };
     
-    return titles[status] || 'Unknown Status';
+    return statusMap[status] || status;
+}
+
+function translateStatusMessage(message) {
+    // Translate common status messages from core-integration
+    const messageMap = {
+        'No entry time detected': t('noEntryTimeDetected'),
+        'No additional details': t('noAdditionalDetails'),
+        'Can leave - requirements completed': t('canLeaveRequirementsCompleted'),
+        'Exactly time to leave!': t('exactlyTimeToLeave'),
+        'Credentials expired - click to refresh': t('credentialsExpiredClickRefresh')
+    };
+    
+    // Handle dynamic messages with patterns
+    if (message.includes('Out of office -') && message.includes('remaining')) {
+        const remainingPart = message.split('Out of office - ')[1];
+        return `${t('notStarted')} - ${remainingPart}`;
+    }
+    
+    if (message.includes('Working -') && message.includes('remaining')) {
+        const remainingPart = message.split('Working - ')[1];
+        return `${t('keepWorking')} - ${remainingPart}`;
+    }
+    
+    if (message.includes('Can leave in') && message.includes('minutes')) {
+        const minutesPart = message.split('Can leave in ')[1];
+        return `${t('canLeave')} en ${minutesPart}`;
+    }
+    
+    // Return translated message if found, otherwise return original
+    return messageMap[message] || message;
 }
 
 function formatMinutesToTime(minutes) {
@@ -644,7 +1013,7 @@ async function saveConfiguration() {
                 notificationsEnabled: notificationsEnabled,
                 debugLogsEnabled: debugLogsEnabled
             });
-            showMessage(elements.configMessage, 'Configuration saved successfully', 'success');
+            showMessage(elements.configMessage, t('configurationSaved'), 'success');
         } else {
             throw new Error(response.error || 'Failed to save configuration');
         }
