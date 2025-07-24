@@ -7,7 +7,7 @@
  * Licensed under CC BY-NC-SA 4.0
  * 
  * Commercial use requires explicit written permission.
- * Contact: cucoext.licensing@gmail.com
+ * Contact: dani.azemar+cucoextlicensing@gmail.com
  * License: https://creativecommons.org/licenses/by-nc-sa/4.0/
  */
 

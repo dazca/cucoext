@@ -104,7 +104,7 @@ switch ($Mode) {
         # Create desktop shortcut
         $WshShell = New-Object -comObject WScript.Shell
         $Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\CucoExt Widget.lnk")
-        $Shortcut.TargetPath = "$ScriptDir\init-cucoext.bat"
+        $Shortcut.TargetPath = "$ScriptDir\init-dani.azemar+cucoextbat"
         $Shortcut.WorkingDirectory = $ScriptDir
         $Shortcut.Description = "CucoExt Work Time Tracker Widget"
         $Shortcut.Save()

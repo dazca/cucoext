@@ -61,7 +61,7 @@ echo - White Circle: Loading...
 echo.
 echo [INFO] Widget is now running in the background
 echo [INFO] You can close this window safely
-echo [INFO] Use stop-cucoext.bat to stop the widget
+echo [INFO] Use stop-dani.azemar+cucoextbat to stop the widget
 echo.
 
 timeout /t 10 /nobreak > nul

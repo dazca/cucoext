@@ -54,7 +54,7 @@ echo # CucoExt Chrome Extension - Installation Guide
 echo.
 echo **Copyright (c) 2024-2025 CucoExt Development Team**
 echo **Licensed under CC BY-NC-SA 4.0**
-echo **Commercial use requires written permission: cucoext.licensing@gmail.com**
+echo **Commercial use requires written permission: dani.azemar+cucoextlicensing@gmail.com**
 echo.
 echo ## ⚠️ IMPORTANT LICENSE NOTICE
 echo.
@@ -64,7 +64,7 @@ echo - ✅ **Modification and sharing** with attribution permitted
 echo - ❌ **Commercial use by companies** requires explicit written permission
 echo - ❌ **Paid promotion or business integration** without authorization prohibited
 echo.
-echo **Companies must contact cucoext.licensing@gmail.com before business use.**
+echo **Companies must contact dani.azemar+cucoextlicensing@gmail.com before business use.**
 echo.
 echo ## Quick Installation
 echo.

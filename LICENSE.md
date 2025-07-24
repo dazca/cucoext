@@ -37,7 +37,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 
 For commercial licensing inquiries, custom development, or permission requests:
 
-**Email**: cucoext.licensing@gmail.com
+**Email**: dani.azemar+cucoextlicensing@gmail.com
 **Subject**: Commercial License Request - [Your Company Name]
 
 Please include:

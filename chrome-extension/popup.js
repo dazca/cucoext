@@ -7,7 +7,7 @@
  * Licensed under CC BY-NC-SA 4.0
  * 
  * Commercial use requires explicit written permission.
- * Contact: cucoext.licensing@gmail.com
+ * Contact: dani.azemar+cucoextlicensing@gmail.com
  * License: https://creativecommons.org/licenses/by-nc-sa/4.0/
  */
 
@@ -17,6 +17,7 @@ let elements = {};
 // Initialize popup
 document.addEventListener('DOMContentLoaded', function() {
     initializeElements();
+    loadCachedSession();
     loadInitialState();
     setupEventListeners();
 });
@@ -44,7 +45,16 @@ function initializeElements() {
         credentialsMessage: document.getElementById('credentialsMessage'),
         configMessage: document.getElementById('configMessage'),
         refreshText: document.getElementById('refreshText'),
-        refreshLoading: document.getElementById('refreshLoading')
+        refreshLoading: document.getElementById('refreshLoading'),
+        // Marcajes tab elements
+        marcajesStatus: document.getElementById('marcajesStatus'),
+        marcajesBadge: document.getElementById('marcajesBadge'),
+        marcajesContainer: document.getElementById('marcajesContainer'),
+        marcajesList: document.getElementById('marcajesList'),
+        marcajesEntries: document.getElementById('marcajesEntries'),
+        marcajesStats: document.getElementById('marcajesStats'),
+        marcajesProblems: document.getElementById('marcajesProblems'),
+        problemsList: document.getElementById('problemsList')
     };
 }
 
@@ -164,6 +174,34 @@ function setupEventListeners() {
     const saveConfigBtn = document.getElementById('saveConfiguration-btn');
     if (saveConfigBtn) {
         saveConfigBtn.addEventListener('click', saveConfiguration);
+    }
+
+    // Marcajes tab buttons
+    const refreshMarcajesBtn = document.getElementById('refreshMarcajes-btn');
+    if (refreshMarcajesBtn) {
+        refreshMarcajesBtn.addEventListener('click', refreshMarcajes);
+    }
+
+    const exportMarcajesBtn = document.getElementById('exportMarcajes-btn');
+    if (exportMarcajesBtn) {
+        exportMarcajesBtn.addEventListener('click', exportMarcajes);
+    }
+
+    const fixProblemsBtn = document.getElementById('fixProblems-btn');
+    if (fixProblemsBtn) {
+        fixProblemsBtn.addEventListener('click', fixMarcajesProblems);
+    }
+
+    // About tab button
+    const aboutBtn = document.getElementById('aboutTab-btn');
+    if (aboutBtn) {
+        aboutBtn.addEventListener('click', () => showTab('about'));
+    }
+
+    // Marcajes tab button
+    const marcajesBtn = document.getElementById('marcajesTab-btn');
+    if (marcajesBtn) {
+        marcajesBtn.addEventListener('click', () => showTab('marcajes'));
     }
 }
 
@@ -685,3 +723,536 @@ async function openTimeSheet() {
         alert('Error opening timesheet. Please check your browser permissions.');
     }
 }
+
+// Global variables for session management
+let cachedMarcajes = null;
+let lastMarcajesUpdate = null;
+let isOfflineMode = false;
+
+// Enhanced session management - preserve data to avoid re-entry
+async function loadCachedSession() {
+    try {
+        const result = await chrome.storage.local.get(['cachedMarcajes', 'lastMarcajesUpdate', 'lastStatus']);
+        
+        if (result.cachedMarcajes && result.lastMarcajesUpdate) {
+            const cacheAge = Date.now() - new Date(result.lastMarcajesUpdate).getTime();
+            const cacheValidHours = 8; // Cache valid for 8 hours
+            
+            if (cacheAge < cacheValidHours * 60 * 60 * 1000) {
+                cachedMarcajes = result.cachedMarcajes;
+                lastMarcajesUpdate = result.lastMarcajesUpdate;
+                isOfflineMode = true;
+                
+                // Show offline indicator in credentials tab
+                showOfflineIndicator();
+                
+                // Use cached data if available
+                if (result.lastStatus) {
+                    updateStatusDisplay(result.lastStatus);
+                }
+                
+                return true;
+            }
+        }
+        return false;
+    } catch (error) {
+        console.error('Error loading cached session:', error);
+        return false;
+    }
+}
+
+// Show offline mode indicator
+function showOfflineIndicator() {
+    const credentialsTab = document.getElementById('credentialsTab');
+    if (credentialsTab && !credentialsTab.querySelector('.credentials-warning')) {
+        const warningDiv = document.createElement('div');
+        warningDiv.className = 'credentials-warning';
+        warningDiv.innerHTML = '⚠️ Using cached data. Refresh credentials to get latest information.';
+        credentialsTab.insertBefore(warningDiv, credentialsTab.firstChild);
+    }
+}
+
+// Marcajes functionality
+async function refreshMarcajes() {
+    const refreshBtn = document.getElementById('refreshMarcajes-btn');
+    const originalText = refreshBtn.textContent;
+    
+    try {
+        refreshBtn.textContent = '🔄 Loading...';
+        refreshBtn.disabled = true;
+        
+        // Get credentials
+        const storage = await chrome.storage.local.get(['credentials']);
+        const credentials = storage.credentials;
+        
+        if (!credentials || !credentials.token) {
+            throw new Error('No credentials available. Please extract credentials first.');
+        }
+        
+        // Fetch fresh marcajes data
+        const response = await chrome.runtime.sendMessage({
+            action: 'fetchMarcajes',
+            credentials: credentials
+        });
+        
+        if (response.success) {
+            cachedMarcajes = response.data;
+            lastMarcajesUpdate = new Date().toISOString();
+            isOfflineMode = false;
+            
+            // Cache the data
+            await chrome.storage.local.set({
+                cachedMarcajes: cachedMarcajes,
+                lastMarcajesUpdate: lastMarcajesUpdate
+            });
+            
+            // Remove offline indicator
+            const warningElement = document.querySelector('.credentials-warning');
+            if (warningElement) {
+                warningElement.remove();
+            }
+            
+            displayMarcajes(cachedMarcajes);
+            updateMarcajesStatus(cachedMarcajes);
+        } else {
+            throw new Error(response.error || 'Failed to fetch marcajes data');
+        }
+        
+    } catch (error) {
+        console.error('Error refreshing marcajes:', error);
+        
+        // If we have cached data, use it and show warning
+        if (cachedMarcajes) {
+            displayMarcajes(cachedMarcajes);
+            updateMarcajesStatus(cachedMarcajes, true);
+            showMessage(elements.marcajesContainer, `Using cached data: ${error.message}`, 'warning');
+        } else {
+            showMessage(elements.marcajesContainer, `Error: ${error.message}`, 'error');
+        }
+    } finally {
+        refreshBtn.textContent = originalText;
+        refreshBtn.disabled = false;
+    }
+}
+
+// Process marcajes data for double entries/exits
+function processMarcajesData(marcajes) {
+    if (!marcajes || !marcajes.entries || !marcajes.exits) {
+        return { processed: [], problems: [] };
+    }
+    
+    const processed = [];
+    const problems = [];
+    const allEvents = [];
+    
+    // Combine entries and exits with timestamps
+    marcajes.entries.forEach(time => {
+        allEvents.push({ time, type: 'E', original: true });
+    });
+    
+    marcajes.exits.forEach(time => {
+        allEvents.push({ time, type: 'S', original: true });
+    });
+    
+    // Sort by time
+    allEvents.sort((a, b) => a.time.localeCompare(b.time));
+    
+    // Check for problematic patterns
+    for (let i = 0; i < allEvents.length; i++) {
+        const current = allEvents[i];
+        const next = allEvents[i + 1];
+        
+        if (next && current.type === next.type) {
+            // Double entry or double exit detected
+            const timeDiff = getTimeDifferenceMinutes(current.time, next.time);
+            
+            if (timeDiff <= 5) {
+                // Within 5 minutes - keep the second one
+                current.remove = true;
+                current.reason = `Double ${current.type} within 5min - keeping latest`;
+            } else {
+                // More than 5 minutes - mark as problematic
+                problems.push({
+                    type: 'double_' + current.type.toLowerCase(),
+                    entries: [current, next],
+                    message: `Double ${current.type === 'E' ? 'entrada' : 'salida'} detected`,
+                    timeDiff: timeDiff
+                });
+            }
+        }
+        
+        if (!current.remove) {
+            processed.push(current);
+        }
+    }
+    
+    return { processed, problems };
+}
+
+// Get time difference in minutes
+function getTimeDifferenceMinutes(time1, time2) {
+    const [h1, m1] = time1.split(':').map(Number);
+    const [h2, m2] = time2.split(':').map(Number);
+    const minutes1 = h1 * 60 + m1;
+    const minutes2 = h2 * 60 + m2;
+    return Math.abs(minutes2 - minutes1);
+}
+
+// Display marcajes in the UI
+function displayMarcajes(marcajes) {
+    if (!marcajes) return;
+    
+    const { processed, problems } = processMarcajesData(marcajes);
+    
+    // Show/hide containers
+    elements.marcajesContainer.style.display = 'none';
+    elements.marcajesList.style.display = 'block';
+    
+    // Update stats
+    const totalEntries = processed.filter(e => e.type === 'E').length;
+    const totalExits = processed.filter(e => e.type === 'S').length;
+    const presenceTime = calculatePresenceTime(processed);
+    
+    elements.marcajesStats.innerHTML = `
+        <div>Entradas: ${totalEntries} | Salidas: ${totalExits}</div>
+        <div>Tiempo presencia: ${presenceTime}</div>
+        ${isOfflineMode ? '<div class="offline-indicator">📱 Offline Mode</div>' : ''}
+    `;
+    
+    // Display entries
+    elements.marcajesEntries.innerHTML = '';
+    processed.forEach((entry, index) => {
+        const entryDiv = createMarcajeElement(entry, index);
+        elements.marcajesEntries.appendChild(entryDiv);
+    });
+    
+    // Handle problems
+    if (problems.length > 0) {
+        displayMarcajesProblems(problems);
+    } else {
+        elements.marcajesProblems.style.display = 'none';
+    }
+}
+
+// Create marcaje element
+function createMarcajeElement(entry, index) {
+    const div = document.createElement('div');
+    div.className = `marcaje-item ${entry.type === 'E' ? 'entry' : 'exit'}`;
+    
+    const typeText = entry.type === 'E' ? 'Entrada' : 'Salida';
+    const label = getEntryLabel(entry, index);
+    
+    div.innerHTML = `
+        <div class="marcaje-info">
+            <span class="marcaje-time">${entry.time}</span>
+            <span class="marcaje-type ${entry.type === 'E' ? 'entrada' : 'salida'}">${typeText}</span>
+            ${label ? `<span class="marcaje-label">${label}</span>` : ''}
+        </div>
+        <div class="marcaje-controls">
+            <button class="marcaje-btn edit" onclick="editMarcajeLabel(${index})">🏷️</button>
+            <button class="marcaje-btn delete" onclick="deleteMarcaje(${index})">❌</button>
+        </div>
+    `;
+    
+    return div;
+}
+
+// Calculate presence time from processed entries
+function calculatePresenceTime(processed) {
+    let totalMinutes = 0;
+    let currentEntry = null;
+    
+    for (const event of processed) {
+        if (event.type === 'E') {
+            currentEntry = event.time;
+        } else if (event.type === 'S' && currentEntry) {
+            const entryMinutes = timeToMinutes(currentEntry);
+            const exitMinutes = timeToMinutes(event.time);
+            totalMinutes += exitMinutes - entryMinutes;
+            currentEntry = null;
+        }
+    }
+    
+    // If still in office (no exit for last entry)
+    if (currentEntry) {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const entryMinutes = timeToMinutes(currentEntry);
+        totalMinutes += currentMinutes - entryMinutes;
+    }
+    
+    return minutesToTimeString(totalMinutes);
+}
+
+// Utility functions
+function timeToMinutes(timeStr) {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+function minutesToTimeString(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}:${mins.toString().padStart(2, '0')}`;
+}
+
+// Display problems
+function displayMarcajesProblems(problems) {
+    elements.marcajesProblems.style.display = 'block';
+    elements.problemsList.innerHTML = '';
+    
+    problems.forEach((problem, index) => {
+        const problemDiv = document.createElement('div');
+        problemDiv.className = 'marcaje-item problematic';
+        problemDiv.innerHTML = `
+            <div>
+                <strong>${problem.message}</strong><br>
+                ${problem.entries.map(e => `${e.time} (${e.type})`).join(' → ')}
+                <br><small>Time difference: ${problem.timeDiff} minutes</small>
+            </div>
+            <button class="marcaje-btn" onclick="fixProblem(${index})">Fix</button>
+        `;
+        elements.problemsList.appendChild(problemDiv);
+    });
+}
+
+// Update marcajes status indicator
+function updateMarcajesStatus(marcajes, hasError = false) {
+    if (!elements.marcajesBadge) return;
+    
+    if (hasError) {
+        elements.marcajesBadge.className = 'badge orange';
+        elements.marcajesBadge.textContent = '⚠️';
+        return;
+    }
+    
+    const { problems } = processMarcajesData(marcajes);
+    
+    if (problems.length > 0) {
+        elements.marcajesBadge.className = 'badge orange';
+        elements.marcajesBadge.textContent = '⚠️';
+    } else {
+        elements.marcajesBadge.className = 'badge green';
+        elements.marcajesBadge.textContent = '✓';
+    }
+}
+
+// Export functionality
+function exportMarcajes() {
+    if (!cachedMarcajes) {
+        alert('No marcajes data to export. Please refresh first.');
+        return;
+    }
+    
+    showExportModal();
+}
+
+function showExportModal() {
+    const modal = document.createElement('div');
+    modal.className = 'export-modal';
+    modal.innerHTML = `
+        <div class="export-content">
+            <h3>Export Marcajes</h3>
+            <p>Choose export format:</p>
+            <div class="export-formats">
+                <button class="format-btn" data-format="json">JSON</button>
+                <button class="format-btn" data-format="csv">CSV</button>
+                <button class="format-btn" data-format="xml">XML</button>
+            </div>
+            <div class="export-options">
+                <label><input type="checkbox" id="includeLabels" checked> Include labels</label>
+                <label><input type="checkbox" id="includeProblems"> Include problems</label>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="button button-primary" onclick="doExport()">Export</button>
+                <button class="button button-secondary" onclick="closeExportModal()">Cancel</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Format selection
+    modal.querySelectorAll('.format-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            modal.querySelectorAll('.format-btn').forEach(b => b.classList.remove('selected'));
+            e.target.classList.add('selected');
+        });
+    });
+}
+
+function closeExportModal() {
+    const modal = document.querySelector('.export-modal');
+    if (modal) modal.remove();
+}
+
+function prepareExportData(includeLabels, includeProblems) {
+    const { processed, problems } = processMarcajesData(cachedMarcajes);
+    
+    const data = {
+        date: new Date().toISOString().split('T')[0],
+        exportTime: new Date().toISOString(),
+        entries: processed.map((entry, index) => ({
+            time: entry.time,
+            type: entry.type,
+            typeDescription: entry.type === 'E' ? 'Entrada' : 'Salida',
+            label: includeLabels ? getEntryLabel(entry, index) : null
+        }))
+    };
+    
+    if (includeProblems && problems.length > 0) {
+        data.problems = problems;
+    }
+    
+    return data;
+}
+
+function convertToCSV(data) {
+    let csv = 'Time,Type,Description,Label\n';
+    data.entries.forEach(entry => {
+        csv += `${entry.time},${entry.type},${entry.typeDescription},${entry.label || ''}\n`;
+    });
+    return csv;
+}
+
+function convertToXML(data) {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<marcajes>\n';
+    xml += `  <date>${data.date}</date>\n`;
+    xml += `  <exportTime>${data.exportTime}</exportTime>\n`;
+    xml += '  <entries>\n';
+    data.entries.forEach(entry => {
+        xml += '    <entry>\n';
+        xml += `      <time>${entry.time}</time>\n`;
+        xml += `      <type>${entry.type}</type>\n`;
+        xml += `      <description>${entry.typeDescription}</description>\n`;
+        if (entry.label) xml += `      <label>${entry.label}</label>\n`;
+        xml += '    </entry>\n';
+    });
+    xml += '  </entries>\n';
+    xml += '</marcajes>';
+    return xml;
+}
+
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Labeling functionality
+function getEntryLabel(entry, index) {
+    // Get labels from storage
+    const labels = JSON.parse(localStorage.getItem('marcajesLabels') || '{}');
+    const key = `${entry.time}_${entry.type}`;
+    return labels[key] || null;
+}
+
+// Fix problems functionality
+function fixMarcajesProblems() {
+    if (confirm('This will automatically fix double entries/exits based on 5-minute rule. Continue?')) {
+        const { processed } = processMarcajesData(cachedMarcajes);
+        
+        // Update cached data with fixed version
+        const newEntries = processed.filter(e => e.type === 'E').map(e => e.time);
+        const newExits = processed.filter(e => e.type === 'S').map(e => e.time);
+        
+        cachedMarcajes = {
+            ...cachedMarcajes,
+            entries: newEntries,
+            exits: newExits
+        };
+        
+        // Save fixed data
+        chrome.storage.local.set({
+            cachedMarcajes: cachedMarcajes,
+            lastMarcajesUpdate: new Date().toISOString()
+        });
+        
+        displayMarcajes(cachedMarcajes);
+        updateMarcajesStatus(cachedMarcajes);
+        
+        alert('Problems fixed! The corrected data has been saved.');
+    }
+}
+
+// Global functions for marcajes functionality - need to be accessible from HTML onclick handlers
+window.editMarcajeLabel = function(index) {
+    const processed = processMarcajesData(cachedMarcajes).processed;
+    const entry = processed[index];
+    if (!entry) return;
+    
+    const currentLabel = getEntryLabel(entry, index);
+    const newLabel = prompt(`Add label for ${entry.type === 'E' ? 'Entrada' : 'Salida'} at ${entry.time}:`, currentLabel || '');
+    
+    if (newLabel !== null) {
+        const labels = JSON.parse(localStorage.getItem('marcajesLabels') || '{}');
+        const key = `${entry.time}_${entry.type}`;
+        
+        if (newLabel.trim()) {
+            labels[key] = newLabel.trim();
+        } else {
+            delete labels[key];
+        }
+        
+        localStorage.setItem('marcajesLabels', JSON.stringify(labels));
+        displayMarcajes(cachedMarcajes); // Refresh display
+    }
+};
+
+window.deleteMarcaje = function(index) {
+    if (confirm('Are you sure you want to delete this marcaje entry?')) {
+        // This would require server interaction in a real implementation
+        alert('Delete functionality requires server integration');
+    }
+};
+
+window.fixProblem = function(index) {
+    if (confirm('Fix this specific problem?')) {
+        alert('Individual problem fixing will be implemented with server integration');
+    }
+};
+
+window.doExport = function() {
+    const modal = document.querySelector('.export-modal');
+    const selectedFormat = modal.querySelector('.format-btn.selected');
+    const format = selectedFormat ? selectedFormat.dataset.format : 'json';
+    
+    const includeLabels = modal.querySelector('#includeLabels').checked;
+    const includeProblems = modal.querySelector('#includeProblems').checked;
+    
+    const exportData = prepareExportData(includeLabels, includeProblems);
+    
+    let content, filename, mimeType;
+    
+    switch (format) {
+        case 'json':
+            content = JSON.stringify(exportData, null, 2);
+            filename = `marcajes_${new Date().toISOString().split('T')[0]}.json`;
+            mimeType = 'application/json';
+            break;
+        case 'csv':
+            content = convertToCSV(exportData);
+            filename = `marcajes_${new Date().toISOString().split('T')[0]}.csv`;
+            mimeType = 'text/csv';
+            break;
+        case 'xml':
+            content = convertToXML(exportData);
+            filename = `marcajes_${new Date().toISOString().split('T')[0]}.xml`;
+            mimeType = 'application/xml';
+            break;
+    }
+    
+    downloadFile(content, filename, mimeType);
+    closeExportModal();
+};
+
+window.closeExportModal = function() {
+    const modal = document.querySelector('.export-modal');
+    if (modal) modal.remove();
+};

@@ -17,7 +17,7 @@ set LICENSE_HEADER=/**^
  * Licensed under CC BY-NC-SA 4.0^
  *^
  * Commercial use requires explicit written permission.^
- * Contact: cucoext.licensing@gmail.com^
+ * Contact: dani.azemar+cucoextlicensing@gmail.com^
  * License: https://creativecommons.org/licenses/by-nc-sa/4.0/^
  */
 
@@ -40,7 +40,7 @@ echo   4. Ensure all package-for-delivery scripts include license information
 echo.
 echo 💡 Important notes:
 echo   - Commercial entities must obtain permission before use
-echo   - Contact cucoext.licensing@gmail.com for commercial licensing
+echo   - Contact dani.azemar+cucoextlicensing@gmail.com for commercial licensing
 echo   - The CC BY-NC-SA 4.0 license protects your work while allowing personal use
 echo   - All distribution packages will include license and contact information
 echo.

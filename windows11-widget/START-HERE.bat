@@ -9,7 +9,7 @@ echo.
 echo Available Launch Options:
 echo.
 echo 1. INTERACTIVE SETUP (Recommended for new users)
-echo    File: init-cucoext.bat
+echo    File: init-dani.azemar+cucoextbat
 echo    Usage: Double-click this file
 echo    Features: Menu-driven setup with explanations
 echo.
@@ -24,12 +24,12 @@ echo    Usage: Double-click this file
 echo    Features: Web widget at http://localhost:3001
 echo.
 echo 4. POWERSHELL LAUNCHER (Advanced users)
-echo    File: Start-CucoExt.ps1
-echo    Usage: powershell -File Start-CucoExt.ps1 -Mode widget
+echo    File: Start-dani.azemar+cucoextps1
+echo    Usage: powershell -File Start-dani.azemar+cucoextps1 -Mode widget
 echo    Features: Command-line control with parameters
 echo.
 echo 5. STOP ALL PROCESSES
-echo    File: stop-cucoext.bat
+echo    File: stop-dani.azemar+cucoextbat
 echo    Usage: Double-click this file
 echo    Features: Safely stops all CucoExt processes
 echo.
@@ -46,4 +46,4 @@ echo - White: Loading...
 echo.
 
 set /p choice="Press Enter to open interactive setup, or close this window: "
-call init-cucoext.bat
+call init-dani.azemar+cucoextbat

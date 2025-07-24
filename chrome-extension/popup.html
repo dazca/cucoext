@@ -13,7 +13,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         .container {
@@ -21,6 +21,10 @@
             height: 100%;
             box-sizing: border-box;
             overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }
 
         .header {
@@ -291,6 +295,218 @@
         .hidden {
             display: none !important;
         }
+
+        /* Marcajes Tab Styles */
+        .marcajes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .marcajes-stats {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .marcajes-entries {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .marcaje-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+
+        .marcaje-item.entry {
+            border-left-color: #28a745;
+        }
+
+        .marcaje-item.exit {
+            border-left-color: #dc3545;
+        }
+
+        .marcaje-item.problematic {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+
+        .marcaje-time {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .marcaje-type {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .marcaje-type.entrada {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .marcaje-type.salida {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .marcaje-label {
+            font-size: 12px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .marcaje-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .marcaje-btn {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .marcaje-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .marcaje-btn.edit {
+            color: #007bff;
+        }
+
+        .marcaje-btn.delete {
+            color: #dc3545;
+        }
+
+        .warning-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .button-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .button-warning:hover {
+            background: #e0a800;
+        }
+
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 10px 0;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-indicator {
+            display: inline-block;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #6c757d;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        .badge.success {
+            background: #28a745;
+        }
+
+        .badge.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .badge.error {
+            background: #dc3545;
+        }
+
+        /* About Tab Styles */
+        .about-content {
+            text-align: left;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .logo-section h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+
+        .version {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .features-list ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .features-list li {
+            margin-bottom: 5px;
+        }
+
+        .license-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .license-text {
+            font-size: 14px;
+            margin: 10px 0 0 0;
+        }
+
+        .support-section {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .technical-info {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
@@ -331,9 +547,11 @@
 
         <!-- Tabs -->
         <div class="tabs">
+            <button class="tab" id="configTab-btn" data-tab="config">⚙️</button>
             <button class="tab active" id="statusTab-btn" data-tab="status">Status</button>
+            <button class="tab" id="marcajesTab-btn" data-tab="marcajes">Marcajes</button>
             <button class="tab" id="credentialsTab-btn" data-tab="credentials">Credentials</button>
-            <button class="tab" id="configTab-btn" data-tab="config">Config</button>
+            <button class="tab" id="aboutTab-btn" data-tab="about">❓</button>
         </div>
 
         <!-- Status Tab -->
@@ -392,8 +610,61 @@
             </div>
         </div>
 
+        <!-- Marcajes Tab -->
+        <div class="tab-content" id="marcajesTab">
+            <div class="section">
+                <div class="section-title">
+                    Entradas y Salidas (E/S)
+                    <div class="status-indicator" id="marcajesStatus" style="display: inline-block; margin-left: 10px;">
+                        <span class="badge" id="marcajesBadge">●</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button class="button button-secondary" id="refreshMarcajes-btn">🔄 Refresh Marcajes</button>
+                    <button class="button button-secondary" id="exportMarcajes-btn">📁 Export</button>
+                </div>
+
+                <div id="marcajesContainer">
+                    <div class="info-message">
+                        Click "Refresh Marcajes" to load today's entries and exits
+                    </div>
+                </div>
+
+                <div id="marcajesList" style="display: none;">
+                    <div class="marcajes-header">
+                        <h4>Today's Marcajes</h4>
+                        <div class="marcajes-stats" id="marcajesStats"></div>
+                    </div>
+                    <div class="marcajes-entries" id="marcajesEntries"></div>
+                </div>
+
+                <div id="marcajesProblems" style="display: none;">
+                    <div class="section-title warning">⚠️ Problematic Entries</div>
+                    <div class="warning-message">
+                        Double entries or exits detected. Please review and fix:
+                    </div>
+                    <div id="problemsList"></div>
+                    <button class="button button-warning" id="fixProblems-btn">🔧 Fix Problems</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Config Tab -->
         <div class="tab-content" id="configTab">
+            <div class="section">
+                <div class="section-title">Language / Idioma</div>
+                <div class="form-group">
+                    <label class="form-label">Interface Language</label>
+                    <select class="form-select" id="languageSelect">
+                        <option value="auto">Auto (Browser Language)</option>
+                        <option value="en">English</option>
+                        <option value="ca">Català</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
+            </div>
+            
             <div class="section">
                 <div class="section-title">Working Hours Schedule</div>
                 <div class="form-group">
@@ -421,6 +692,57 @@
                 </div>
                 <button class="button button-primary" id="saveConfiguration-btn">Save Configuration</button>
                 <div id="configMessage"></div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div class="tab-content" id="aboutTab">
+            <div class="section">
+                <div class="section-title">About CucoExt</div>
+                <div class="about-content">
+                    <div class="logo-section">
+                        <h3>🎯 CucoExt - Smart Work Time Tracker</h3>
+                        <p class="version">Version 2.0.0 - Chrome Extension</p>
+                    </div>
+                    
+                    <div class="features-list">
+                        <h4>✨ Features</h4>
+                        <ul>
+                            <li>Real-time work time tracking</li>
+                            <li>Spanish working hours support</li>
+                            <li>Automated credential management</li>
+                            <li>Presence time calculation</li>
+                            <li>Multiple schedule support</li>
+                            <li>Background monitoring</li>
+                            <li>Visual status indicators</li>
+                        </ul>
+                    </div>
+
+                    <div class="license-section">
+                        <h4>📄 License</h4>
+                        <p><strong>CC BY-NC-SA 4.0</strong> - Creative Commons</p>
+                        <p class="license-text">
+                            ✅ Personal use allowed<br>
+                            ❌ Commercial use requires permission
+                        </p>
+                    </div>
+
+                    <div class="support-section">
+                        <h4>📧 Support</h4>
+                        <p>For issues or commercial licensing:</p>
+                        <p><strong>dani.azemar+cucoextlicensing@gmail.com</strong></p>
+                    </div>
+
+                    <div class="technical-info">
+                        <h4>🔧 Technical Details</h4>
+                        <div class="tech-details">
+                            <p><strong>Platform:</strong> Chrome Extension (Manifest V3)</p>
+                            <p><strong>Target:</strong> cuco360.cucorent.com</p>
+                            <p><strong>Storage:</strong> Chrome Local Storage</p>
+                            <p><strong>Permissions:</strong> activeTab, storage, alarms, notifications</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

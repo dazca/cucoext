@@ -6,7 +6,7 @@ A comprehensive Windows 11 widget system for tracking work hours from the Spanis
 
 ### Option 1: Interactive Setup (Recommended)
 ```cmd
-init-cucoext.bat
+init-dani.azemar+cucoextbat
 ```
 
 ### Option 2: Direct Widget Launch
@@ -16,7 +16,7 @@ start-widget.bat
 
 ### Option 3: PowerShell (Advanced)
 ```powershell
-.\Start-CucoExt.ps1 -Mode widget
+.\Start-dani.azemar+cucoextps1 -Mode widget
 ```
 
 ## Available Components

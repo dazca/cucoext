@@ -4,7 +4,7 @@
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Version](https://img.shields.io/badge/Version-2025.07.24-blue.svg)]()
-[![Commercial License Required](https://img.shields.io/badge/Commercial%20Use-License%20Required-red.svg)](mailto:cucoext.licensing@gmail.com)
+[![Commercial License Required](https://img.shields.io/badge/Commercial%20Use-License%20Required-red.svg)](mailto:dani.azemar+cucoextlicensing@gmail.com)
 
 ## ⚠️ License & Commercial Use Notice
 
@@ -24,7 +24,7 @@
 - **Using this extension to amplify company services**
 
 ### 📧 Commercial Licensing Contact
-**Email**: cucoext.licensing@gmail.com
+**Email**: dani.azemar+cucoextlicensing@gmail.com
 **Subject**: Commercial License Request - [Your Company Name]
 
 *Companies must obtain explicit written permission before business use.*
@@ -151,7 +151,7 @@ npm run setup           # Interactive setup
 ### Windows Desktop Users
 ```cmd
 cd windows11-widget
-init-cucoext.bat
+init-dani.azemar+cucoextbat
 ```
 
 ### Chrome Users

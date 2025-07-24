@@ -21,7 +21,7 @@ class Windows11TaskbarIntegration {
         try {
             console.log('🔧 Setting Windows 11 app info...');
             // Set Windows 11 app info
-            app.setAppUserModelId('com.cucoext.taskbar-widget');
+            app.setAppUserModelId('com.dani.azemar+cucoexttaskbar-widget');
             app.setName('CucoExt');
 
             console.log('📍 Creating tray icon...');

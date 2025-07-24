@@ -33,7 +33,7 @@ if "%ERRORLEVEL%"=="0" (
 
 echo.
 echo [SUCCESS] All CucoExt processes stopped
-echo [INFO] You can restart using init-cucoext.bat
+echo [INFO] You can restart using init-dani.azemar+cucoextbat
 echo.
 
 timeout /t 3 /nobreak > nul

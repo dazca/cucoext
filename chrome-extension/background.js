@@ -368,6 +368,47 @@ class BackgroundService {
             console.error('Error starting credential extraction:', error);
         }
     }
+
+    // Fetch marcajes data for the popup
+    async fetchMarcajesData(credentials) {
+        console.log('🔧 DEBUG: Fetching marcajes data with credentials');
+        
+        if (!credentials || !credentials.token) {
+            throw new Error('No valid credentials provided');
+        }
+
+        try {
+            // Use the core integration's work time tracker to fetch data
+            const workStatus = await this.core.getWorkStatus();
+            
+            if (!workStatus.success) {
+                throw new Error(workStatus.error || 'Failed to fetch work status');
+            }
+
+            // Extract marcajes information from the work status
+            const marcajesData = {
+                date: new Date().toISOString().split('T')[0],
+                entries: workStatus.data.entries || [],
+                exits: workStatus.data.exits || [],
+                presence: workStatus.data.presence || '00:00',
+                status: workStatus.data.status,
+                fetchedAt: new Date().toISOString(),
+                rawData: workStatus.data.details || null
+            };
+
+            console.log('🔧 DEBUG: Marcajes data fetched successfully:', {
+                entries: marcajesData.entries.length,
+                exits: marcajesData.exits.length,
+                presence: marcajesData.presence
+            });
+
+            return marcajesData;
+
+        } catch (error) {
+            console.error('Error fetching marcajes data:', error);
+            throw error;
+        }
+    }
 }
 
 // Initialize background service
@@ -425,6 +466,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     const newStatus = await chrome.storage.local.get(['lastStatus']);
                     console.log('🔧 DEBUG: Returning status to popup:', newStatus.lastStatus);
                     sendResponse({ success: true, data: newStatus.lastStatus });
+                    break;
+                    
+                case 'fetchMarcajes':
+                    console.log('🔧 DEBUG: Fetch marcajes requested');
+                    try {
+                        const marcajesData = await backgroundService.fetchMarcajesData(message.credentials);
+                        sendResponse({ success: true, data: marcajesData });
+                    } catch (error) {
+                        console.error('Error fetching marcajes:', error);
+                        sendResponse({ success: false, error: error.message });
+                    }
                     break;
                     
                 case 'credentialsExtracted':
