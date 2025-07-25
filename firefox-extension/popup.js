@@ -76,7 +76,7 @@ const translations = {
         status: "Estat", marcajes: "Marcatges", credentials: "Credencials",
         
         // Time labels
-        workingTime: "Temps de Treball", presenceTime: "Temps de Presència",
+        workingTime: "Temps Treballant", presenceTime: "Temps de Presència",
         remaining: "Restant", theoreticalExit: "Sortida Prevista",
         
         // Status messages

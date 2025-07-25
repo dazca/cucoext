@@ -88,6 +88,16 @@ const translations = {
         enableNotifications: "Enable work completion notifications",
         enableDebugLogs: "Enable debug console logs",
         
+        // Debug section
+        debugSection: "Debug Settings",
+        enableCustomMarcajes: "Enable custom debug marcajes",
+        bypassCredentialsEnabled: "Bypass credential validation in debug mode",
+        customMarcajesLabel: "Custom Marcajes Data (JSON or Timestamp Format)",
+        customMarcajesPlaceholder: "Enter custom marcajes data for testing (JSON format or timestamp format: HH:MM:SS E 000 | ...)",
+        debugModeActive: "Debug mode active",
+        debugWarning: "Debug mode will disable real data fetching from Cuco360",
+        loadSampleData: "Load Sample Data",
+        
         // Marcajes section
         entriesAndExits: "Entries and Exits",
         refreshMarcajesInfo: "Click \"Refresh Records\" to load today's entries and exits",
@@ -226,6 +236,16 @@ const translations = {
         autoDetectIntensive: "Horari intensiu d'agost automàtic",
         enableNotifications: "Notificacions de fi de jornada",
         enableDebugLogs: "Activar registres de depuració a la consola",
+        
+        // Debug section
+        debugSection: "Configuració de Depuració",
+        enableCustomMarcajes: "Activar marcatges personalitzats per depurar",
+        bypassCredentialsEnabled: "Ometre validació de credencials en mode depuració",
+        customMarcajesLabel: "Dades de Marcatges Personalitzats (JSON o Format Timestamp)",
+        customMarcajesPlaceholder: "Introdueix dades de marcatges personalitzats per provar (format JSON o format timestamp: HH:MM:SS E 000 | ...)",
+        debugModeActive: "Mode de depuració actiu",
+        debugWarning: "El mode de depuració desactivarà la descàrrega de dades reals de Cuco360",
+        loadSampleData: "Carregar Dades d'Exemple",
         
         // Marcajes section
         entriesAndExits: "Entrades i Sortides",
@@ -366,6 +386,16 @@ const translations = {
         enableNotifications: "Activar notificaciones de finalización de jornada",
         enableDebugLogs: "Activar registros de depuración en la consola",
         
+        // Debug section
+        debugSection: "Configuración de Depuración",
+        enableCustomMarcajes: "Activar marcajes personalizados de depuración",
+        bypassCredentialsEnabled: "Omitir validación de credenciales en modo depuración",
+        customMarcajesLabel: "Datos de Marcajes Personalizados (JSON o Formato Timestamp)",
+        customMarcajesPlaceholder: "Introduce datos de marcajes personalizados para probar (formato JSON o formato timestamp: HH:MM:SS E 000 | ...)",
+        debugModeActive: "Modo de depuración activo",
+        debugWarning: "El modo de depuración desactivará la descarga de datos reales de Cuco360",
+        loadSampleData: "Cargar Datos de Ejemplo",
+        
         // Marcajes section
         entriesAndExits: "Entradas y Salidas",
         refreshMarcajesInfo: "Haz clic en \"Actualizar Marcajes\" para cargar las entradas y salidas de hoy",
@@ -417,8 +447,8 @@ const translations = {
         supportInfo: "Para problemas o licencias comerciales:",
         technicalDetails: "Detalles Técnicos",
         platform: "Plataforma",
-        platformInfo: "Extensión de Chrome (Manifest V3)",
-        target: "Objetivo",
+        platformInfo: "Extensió de Chrome (Manifest V3)",
+        target: "Objectiu",
         targetInfo: "cuco360.cucorent.com",
         storage: "Almacenamiento",
         storageInfo: "Almacenamiento Local de Chrome",
@@ -472,12 +502,27 @@ function t(key) {
 let elements = {};
 
 // Initialize popup
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🔧 DEBUG: DOMContentLoaded fired');
+    
+    // Initialize UI elements
     initializeElements();
-    loadLanguageSettings();
-    loadCachedSession();
-    loadInitialState();
+    
+    // Setup event listeners
     setupEventListeners();
+    
+    // Load initial state
+    await loadInitialState();
+    
+    // Update form elements based on current language
+    updateFormElements();
+    
+    // Start auto-refresh
+    startAutoRefresh();
+    
+    // Test if debug section toggle works
+    console.log('🔧 DEBUG: Debug section title element:', document.getElementById('debugSectionTitle'));
+    console.log('🔧 DEBUG: Debug collapsible content element:', document.getElementById('debugCollapsibleContent'));
 });
 
 async function loadLanguageSettings() {
@@ -600,7 +645,7 @@ function updateSectionTitles() {
             title.textContent = t('languageLabel');
         } else if (text.includes('working hours') || text.includes('horario')) {
             title.textContent = t('workingHoursSchedule');
-        } else if (text.includes('automated') || text.includes('automática')) {
+        } else if (text.includes('automated') || text.includes('automàtica')) {
             title.textContent = t('automatedExtraction');
         } else if (text.includes('manual') || text.includes('credenciales manual')) {
             title.textContent = t('manualCredentials');
@@ -663,6 +708,34 @@ function updateFormElements() {
     
     const debugLabel = document.getElementById('debugLogsEnabledLabel');
     if (debugLabel) debugLabel.textContent = t('enableDebugLogs');
+    
+    const customMarcajesLabel = document.getElementById('customMarcajesEnabledLabel');
+    if (customMarcajesLabel) customMarcajesLabel.textContent = t('enableCustomMarcajes');
+    
+    const bypassCredentialsLabel = document.getElementById('bypassCredentialsEnabledLabel');
+    if (bypassCredentialsLabel) bypassCredentialsLabel.textContent = t('bypassCredentialsEnabled');
+    
+    // Debug section elements
+    const debugSectionTitle = document.getElementById('debugSectionTitle');
+    if (debugSectionTitle) debugSectionTitle.textContent = '🐛 ' + t('debugSection');
+    
+    const customMarcajesDataLabel = document.getElementById('customMarcajesLabel');
+    if (customMarcajesDataLabel) customMarcajesDataLabel.textContent = t('customMarcajesLabel');
+    
+    const customMarcajesInputEl = document.getElementById('customMarcajesInput');
+    if (customMarcajesInputEl) customMarcajesInputEl.placeholder = t('customMarcajesPlaceholder');
+    
+    const debugModeActiveText = document.getElementById('debugModeActiveText');
+    if (debugModeActiveText) debugModeActiveText.textContent = t('debugModeActive');
+    
+    const debugWarningText = document.getElementById('debugWarningText');
+    if (debugWarningText) debugWarningText.textContent = t('debugWarning');
+    
+    const saveDebugConfigBtn = document.getElementById('saveDebugConfiguration-btn');
+    if (saveDebugConfigBtn) saveDebugConfigBtn.textContent = t('saveConfiguration');
+    
+    const loadSampleMarcajesBtn = document.getElementById('loadSampleMarcajes-btn');
+    if (loadSampleMarcajesBtn) loadSampleMarcajesBtn.textContent = t('loadSampleData');
     
     // Input placeholders
     const tokenInput = document.getElementById('tokenInput');
@@ -784,6 +857,14 @@ function initializeElements() {
         autoDetectIntensive: document.getElementById('autoDetectIntensive'),
         notificationsEnabled: document.getElementById('notificationsEnabled'),
         debugLogsEnabled: document.getElementById('debugLogsEnabled'),
+        customMarcajesEnabled: document.getElementById('customMarcajesEnabled'),
+        bypassCredentialsEnabled: document.getElementById('bypassCredentialsEnabled'),
+        customMarcajesInput: document.getElementById('customMarcajesInput'),
+        customMarcajesGroup: document.getElementById('customMarcajesGroup'),
+        debugActiveIndicator: document.getElementById('debugActiveIndicator'),
+        debugWarningSection: document.getElementById('debugWarningSection'),
+        debugNotification: document.getElementById('debugNotification'),
+        debugConfigMessage: document.getElementById('debugConfigMessage'),
         credentialsMessage: document.getElementById('credentialsMessage'),
         configMessage: document.getElementById('configMessage'),
         refreshText: document.getElementById('refreshText'),
@@ -803,7 +884,7 @@ function initializeElements() {
 async function loadInitialState() {
     try {
         // Load stored status
-        const storage = await chrome.storage.local.get(['lastStatus', 'lastUpdate', 'credentials', 'workingHoursSet', 'autoDetectIntensive', 'notificationsEnabled', 'debugLogsEnabled']);
+        const storage = await chrome.storage.local.get(['lastStatus', 'lastUpdate', 'credentials', 'workingHoursSet', 'autoDetectIntensive', 'notificationsEnabled', 'debugLogsEnabled', 'customMarcajesEnabled', 'customMarcajesData', 'bypassCredentialsEnabled', 'showDebugSettings']);
         
         if (storage.lastStatus) {
             updateStatusDisplay(storage.lastStatus);
@@ -835,6 +916,42 @@ async function loadInitialState() {
         } else {
             elements.debugLogsEnabled.checked = false; // default disabled
         }
+        
+        // Load debug configuration
+        if (storage.customMarcajesEnabled !== undefined) {
+            elements.customMarcajesEnabled.checked = storage.customMarcajesEnabled;
+        } else {
+            elements.customMarcajesEnabled.checked = false; // default disabled
+        }
+        
+        if (storage.customMarcajesData) {
+            elements.customMarcajesInput.value = storage.customMarcajesData;
+        }
+        
+        // Load bypass credentials setting
+        if (storage.bypassCredentialsEnabled !== undefined) {
+            elements.bypassCredentialsEnabled.checked = storage.bypassCredentialsEnabled;
+        } else {
+            elements.bypassCredentialsEnabled.checked = false; // default disabled
+        }
+        
+        // Load debug settings visibility toggle
+        const showDebugCheckbox = document.getElementById('showDebugSettings');
+        if (showDebugCheckbox) {
+            if (storage.showDebugSettings !== undefined) {
+                showDebugCheckbox.checked = storage.showDebugSettings;
+            } else {
+                showDebugCheckbox.checked = false; // default hidden
+            }
+            // Apply the toggle state without triggering disable/enable
+            const content = document.getElementById('debugSettingsContent');
+            if (content) {
+                content.style.display = showDebugCheckbox.checked ? 'block' : 'none';
+            }
+        }
+        
+        // Update debug UI state
+        updateDebugUIState();
         
         // Show if credentials are configured
         if (storage.credentials) {
@@ -966,6 +1083,254 @@ function setupEventListeners() {
     if (marcajesBtn) {
         marcajesBtn.addEventListener('click', () => showTab('marcajes'));
     }
+    
+    // Debug configuration event listeners
+    const customMarcajesEnabledCheckbox = document.getElementById('customMarcajesEnabled');
+    if (customMarcajesEnabledCheckbox) {
+        customMarcajesEnabledCheckbox.addEventListener('change', updateDebugUIState);
+    }
+    
+    const saveDebugConfigBtn = document.getElementById('saveDebugConfiguration-btn');
+    if (saveDebugConfigBtn) {
+        saveDebugConfigBtn.addEventListener('click', saveDebugConfiguration);
+    }
+    
+    const loadSampleMarcajesBtn = document.getElementById('loadSampleMarcajes-btn');
+    if (loadSampleMarcajesBtn) {
+        loadSampleMarcajesBtn.addEventListener('click', loadSampleMarcajes);
+    }
+    
+    // Debug section toggle functionality (simplified checkbox approach)
+    const showDebugSettingsCheckbox = document.getElementById('showDebugSettings');
+    if (showDebugSettingsCheckbox) {
+        showDebugSettingsCheckbox.addEventListener('change', toggleDebugSettingsVisibility);
+    }
+    
+    // Make toggle function globally accessible for inline onclick (backup)
+    window.toggleDebugSettingsVisibility = toggleDebugSettingsVisibility;
+}
+
+// Toggle debug settings visibility and temporarily disable debug features
+function toggleDebugSettingsVisibility() {
+    const checkbox = document.getElementById('showDebugSettings');
+    const content = document.getElementById('debugSettingsContent');
+    
+    if (checkbox && content) {
+        // Save the toggle state
+        chrome.storage.local.set({ showDebugSettings: checkbox.checked });
+        
+        if (checkbox.checked) {
+            content.style.display = 'block';
+            // Re-enable debug features when shown
+            enableDebugFeatures();
+            console.log('🔧 DEBUG: Debug settings shown and features enabled');
+        } else {
+            content.style.display = 'none';
+            // Temporarily disable debug features when hidden
+            disableDebugFeatures();
+            console.log('🔧 DEBUG: Debug settings hidden and features disabled');
+        }
+    }
+}
+
+// Temporarily disable debug features without losing configuration
+function disableDebugFeatures() {
+    // Store current debug state temporarily
+    chrome.storage.local.get(['debugLogsEnabled', 'customMarcajesEnabled', 'bypassCredentialsEnabled'], function(result) {
+        // Store the current state in a temporary key
+        chrome.storage.local.set({
+            tempDebugState: {
+                debugLogsEnabled: result.debugLogsEnabled || false,
+                customMarcajesEnabled: result.customMarcajesEnabled || false,
+                bypassCredentialsEnabled: result.bypassCredentialsEnabled || false
+            },
+            // Temporarily disable all debug features
+            debugLogsEnabled: false,
+            customMarcajesEnabled: false,
+            bypassCredentialsEnabled: false
+        });
+    });
+}
+
+// Re-enable debug features from saved configuration
+function enableDebugFeatures() {
+    chrome.storage.local.get(['tempDebugState'], function(result) {
+        if (result.tempDebugState) {
+            // Restore the previous debug state
+            chrome.storage.local.set({
+                debugLogsEnabled: result.tempDebugState.debugLogsEnabled,
+                customMarcajesEnabled: result.tempDebugState.customMarcajesEnabled,
+                bypassCredentialsEnabled: result.tempDebugState.bypassCredentialsEnabled
+            }, function() {
+                // Remove the temporary state
+                chrome.storage.local.remove(['tempDebugState']);
+                // Update UI to reflect restored state
+                updateDebugUIState();
+            });
+        }
+    });
+}
+
+// Debug configuration functions
+function updateDebugUIState() {
+    const isCustomMarcajesEnabled = elements.customMarcajesEnabled.checked;
+    
+    // Show/hide custom marcajes input group
+    if (isCustomMarcajesEnabled) {
+        elements.customMarcajesGroup.classList.remove('hidden');
+        elements.debugActiveIndicator.classList.remove('hidden');
+        elements.debugWarningSection.classList.remove('hidden');
+        elements.debugNotification.classList.remove('hidden');
+    } else {
+        elements.customMarcajesGroup.classList.add('hidden');
+        elements.debugActiveIndicator.classList.add('hidden');
+        elements.debugWarningSection.classList.add('hidden');
+        elements.debugNotification.classList.add('hidden');
+    }
+}
+
+async function saveDebugConfiguration() {
+    const debugLogsEnabled = elements.debugLogsEnabled.checked;
+    const customMarcajesEnabled = elements.customMarcajesEnabled.checked;
+    const bypassCredentialsEnabled = elements.bypassCredentialsEnabled.checked;
+    const customMarcajesData = elements.customMarcajesInput.value.trim();
+    
+    try {
+        // Validate custom marcajes data if enabled
+        if (customMarcajesEnabled && customMarcajesData) {
+            try {
+                // Try to convert using our new function which supports both formats
+                convertCustomMarcajesToJSON(customMarcajesData);
+            } catch (error) {
+                throw new Error('Invalid format in custom marcajes data. Use either JSON format or timestamp format (HH:MM:SS E/S 000 | ...)');
+            }
+        }
+        
+        // Save debug settings
+        await chrome.storage.local.set({ 
+            debugLogsEnabled: debugLogsEnabled,
+            customMarcajesEnabled: customMarcajesEnabled,
+            bypassCredentialsEnabled: bypassCredentialsEnabled,
+            customMarcajesData: customMarcajesData
+        });
+        
+        // Update UI state
+        updateDebugUIState();
+        
+        showMessage(elements.debugConfigMessage, t('configurationSaved'), 'success');
+    } catch (error) {
+        console.error('Error saving debug configuration:', error);
+        showMessage(elements.debugConfigMessage, `${t('errorPrefix')}: ${error.message}`, 'error');
+    }
+}
+
+// Parse timestamps from detail column format (same as core-integration.js)
+function parseCustomMarcajesTimestamps(detailStr) {
+    if (!detailStr) return { entries: [], exits: [] };
+    
+    const entries = [];
+    const exits = [];
+    
+    const timestamps = detailStr.split('|').map(t => t.trim()).filter(t => t);
+    
+    for (const timestamp of timestamps) {
+        const match = timestamp.match(/(\d{2}:\d{2}:\d{2})\s+([ES])/);
+        if (match) {
+            const time = match[1].substring(0, 5); // Remove seconds, keep HH:MM
+            const type = match[2];
+            
+            if (type === 'E') {
+                entries.push(time);
+            } else if (type === 'S') {
+                exits.push(time);
+            }
+        }
+    }
+    
+    return { entries, exits };
+}
+
+// Helper function to convert time string to minutes
+function timeToMinutes(timeStr) {
+    if (!timeStr || timeStr === '--:--' || timeStr === '0') return 0;
+    const parts = timeStr.split(':').map(Number);
+    const hours = parts[0] || 0;
+    const minutes = parts[1] || 0;
+    return hours * 60 + minutes;
+}
+
+// Convert timestamp format to JSON format expected by the extension
+function convertCustomMarcajesToJSON(timestampData) {
+    try {
+        // First, try to parse it as JSON (backward compatibility)
+        const parsed = JSON.parse(timestampData);
+        return parsed;
+    } catch (e) {
+        // If not JSON, parse as timestamp format
+        const timestamps = parseCustomMarcajesTimestamps(timestampData);
+        
+        // Convert to the format expected by the extension
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        
+        // Calculate working minutes and presence minutes for debug purposes
+        let workingMinutes = 0;
+        let presenceMinutes = 0;
+        
+        if (timestamps.entries.length > 0) {
+            // Calculate presence time by summing all entry-exit periods
+            for (let i = 0; i < timestamps.entries.length; i++) {
+                const entryTime = timeToMinutes(timestamps.entries[i]);
+                let exitTime;
+
+                if (i < timestamps.exits.length) {
+                    // There's a corresponding exit
+                    exitTime = timeToMinutes(timestamps.exits[i]);
+                } else {
+                    // No exit yet, person is still inside - use current time
+                    const now = new Date();
+                    exitTime = now.getHours() * 60 + now.getMinutes();
+                }
+
+                // Add this presence period
+                presenceMinutes += Math.max(0, exitTime - entryTime);
+            }
+            
+            // For working minutes, we'll use a simplified calculation
+            // (first entry to last exit or current time)
+            const firstEntryMinutes = timeToMinutes(timestamps.entries[0]);
+            let lastTimeMinutes;
+            
+            if (timestamps.exits.length > 0 && timestamps.entries.length === timestamps.exits.length) {
+                // Person has exited, use last exit
+                lastTimeMinutes = timeToMinutes(timestamps.exits[timestamps.exits.length - 1]);
+            } else {
+                // Person is still inside, use current time
+                const now = new Date();
+                lastTimeMinutes = now.getHours() * 60 + now.getMinutes();
+            }
+            
+            workingMinutes = Math.max(0, lastTimeMinutes - firstEntryMinutes);
+        }
+        
+        return {
+            date: `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`,
+            entries: timestamps.entries,
+            exits: timestamps.exits,
+            rawDetail: timestampData,
+            todayDate: todayStr,
+            workingMinutes: workingMinutes,
+            presenceMinutes: presenceMinutes
+        };
+    }
+}
+
+function loadSampleMarcajes() {
+    // Sample data in the Cuco360 format (timestamp format from detail column)
+    // This example shows multiple entries and exits throughout the day
+    const sampleTimestampData = "09:20:08 E 000 | 09:29:03 S 000 | 09:43:59 E 000 | 11:13:14 S 000 | 11:15:01 E 000 | 12:04:43 S 000 | 12:06:29 E 000 | 13:11:04 S 000 | 13:13:09 E 000 | 13:37:44 S 000 | 13:40:29 E 000 | 14:15:13 S 000 | 14:17:08 E 000 | 14:30:41 S 000 | 14:32:40 E 000 | 17:15:00 S 000";
+    
+    elements.customMarcajesInput.value = sampleTimestampData;
 }
 
 // Tab management
@@ -985,12 +1350,27 @@ function showTab(tabName) {
     if (selectedContent) selectedContent.classList.add('active');
 }
 
+// Helper function to check if debug mode is active
+async function isDebugModeActive() {
+    const storage = await chrome.storage.local.get(['customMarcajesEnabled', 'customMarcajesData']);
+    return storage.customMarcajesEnabled && storage.customMarcajesData && storage.customMarcajesData.trim() !== '';
+}
+
 // Status management
 async function refreshStatus() {
     console.log('🔧 DEBUG: Popup refresh status called');
     setLoading(true);
     
     try {
+        // Check if debug mode is active
+        const debugMode = await isDebugModeActive();
+        if (debugMode) {
+            // In debug mode, show a message indicating status refresh is disabled
+            showMessage(elements.credentialsMessage, '🐛 Debug mode active - Status refresh disabled', 'warning', 3000);
+            setLoading(false);
+            return;
+        }
+        
         console.log('🔧 DEBUG: Sending forceUpdate message to background');
         const response = await sendMessage({ action: 'forceUpdate' });
         console.log('🔧 DEBUG: Got response from background:', response);
@@ -1465,7 +1845,6 @@ async function saveConfiguration() {
     const workingHoursSet = elements.workingHoursSelect.value;
     const autoDetectIntensive = elements.autoDetectIntensive.checked;
     const notificationsEnabled = elements.notificationsEnabled.checked;
-    const debugLogsEnabled = elements.debugLogsEnabled.checked;
     
     try {
         const response = await sendMessage({
@@ -1474,11 +1853,10 @@ async function saveConfiguration() {
         });
         
         if (response.success) {
-            // Save auto-detect, notification, and debug settings
+            // Save auto-detect and notification settings
             await chrome.storage.local.set({ 
                 autoDetectIntensive: autoDetectIntensive,
-                notificationsEnabled: notificationsEnabled,
-                debugLogsEnabled: debugLogsEnabled
+                notificationsEnabled: notificationsEnabled
             });
             showMessage(elements.configMessage, t('configurationSaved'), 'success');
         } else {
@@ -1517,45 +1895,7 @@ async function openTimeSheet() {
         await chrome.tabs.create({ url: timesheetUrl });
         console.log('TimeSheet opened in new tab');
     } catch (error) {
-        console.error('Error opening timesheet:', error);
-        alert('Error opening timesheet. Please check your browser permissions.');
-    }
-}
-
-// Global variables for session management
-let cachedMarcajes = null;
-let lastMarcajesUpdate = null;
-let isOfflineMode = false;
-
-// Enhanced session management - preserve data to avoid re-entry
-async function loadCachedSession() {
-    try {
-        const result = await chrome.storage.local.get(['cachedMarcajes', 'lastMarcajesUpdate', 'lastStatus']);
-        
-        if (result.cachedMarcajes && result.lastMarcajesUpdate) {
-            const cacheAge = Date.now() - new Date(result.lastMarcajesUpdate).getTime();
-            const cacheValidHours = 8; // Cache valid for 8 hours
-            
-            if (cacheAge < cacheValidHours * 60 * 60 * 1000) {
-                cachedMarcajes = result.cachedMarcajes;
-                lastMarcajesUpdate = result.lastMarcajesUpdate;
-                isOfflineMode = true;
-                
-                // Show offline indicator in credentials tab
-                showOfflineIndicator();
-                
-                // Use cached data if available
-                if (result.lastStatus) {
-                    updateStatusDisplay(result.lastStatus);
-                }
-                
-                return true;
-            }
-        }
-        return false;
-    } catch (error) {
-        console.error('Error loading cached session:', error);
-        return false;
+        console.error('Error opening TimeSheet:', error);
     }
 }
 
@@ -1579,15 +1919,46 @@ async function refreshMarcajes() {
         refreshBtn.textContent = '🔄 Loading...';
         refreshBtn.disabled = true;
         
-        // Get credentials
-        const storage = await chrome.storage.local.get(['credentials']);
+        // Check if debug mode with custom marcajes is enabled
+        const storage = await chrome.storage.local.get(['credentials', 'customMarcajesEnabled', 'customMarcajesData', 'bypassCredentialsEnabled']);
         const credentials = storage.credentials;
+        const customMarcajesEnabled = storage.customMarcajesEnabled;
+        const customMarcajesData = storage.customMarcajesData;
+        const bypassCredentialsEnabled = storage.bypassCredentialsEnabled;
         
-        if (!credentials || !credentials.token) {
+        if (customMarcajesEnabled && customMarcajesData) {
+            // Use debug data instead of fetching from Cuco360
+            try {
+                // Use the new conversion function to handle both JSON and timestamp formats
+                const debugData = convertCustomMarcajesToJSON(customMarcajesData);
+                cachedMarcajes = debugData;
+                lastMarcajesUpdate = new Date().toISOString();
+                isOfflineMode = false;
+                
+                // Cache the debug data
+                await chrome.storage.local.set({
+                    cachedMarcajes: cachedMarcajes,
+                    lastMarcajesUpdate: lastMarcajesUpdate
+                });
+                
+                displayMarcajes(cachedMarcajes);
+                updateMarcajesStatus(cachedMarcajes);
+                
+                // Show debug mode indicator in marcajes
+                showDebugModeIndicator();
+                return;
+                
+            } catch (error) {
+                throw new Error('Invalid JSON in custom marcajes data: ' + error.message);
+            }
+        }
+        
+        // Check credentials only if not bypassing in debug mode
+        if (!bypassCredentialsEnabled && (!credentials || !credentials.token)) {
             throw new Error(t('noCredentialsAvailable'));
         }
         
-        // Fetch fresh marcajes data
+        // Fetch fresh marcajes data from Cuco360
         const response = await chrome.runtime.sendMessage({
             action: 'fetchMarcajes',
             credentials: credentials
@@ -1630,6 +2001,36 @@ async function refreshMarcajes() {
     } finally {
         refreshBtn.textContent = originalText;
         refreshBtn.disabled = false;
+    }
+}
+
+// Show debug mode indicator in marcajes tab
+function showDebugModeIndicator() {
+    const marcajesContainer = document.getElementById('marcajesContainer');
+    if (marcajesContainer) {
+        // Remove existing debug indicator
+        const existingIndicator = marcajesContainer.querySelector('.debug-mode-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+        
+        // Add new debug indicator
+        const debugIndicator = document.createElement('div');
+        debugIndicator.className = 'debug-mode-indicator';
+        debugIndicator.style.cssText = `
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            animation: pulse 2s infinite;
+        `;
+        debugIndicator.textContent = '🐛 ' + t('debugModeActive') + ' - Using custom marcajes data';
+        
+        marcajesContainer.insertBefore(debugIndicator, marcajesContainer.firstChild);
     }
 }
 

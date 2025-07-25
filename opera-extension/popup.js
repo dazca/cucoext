@@ -49,7 +49,7 @@ const translations = {
         loading: "Carregant...", checkingStatus: "Comprovant estat de la jornada...",
         statusRefreshed: "Estat actualitzat correctament", lastUpdate: "Última actualització", never: "Mai",
         status: "Estat", marcajes: "Marcatges", credentials: "Credencials",
-        workingTime: "Temps de Treball", presenceTime: "Temps de Presència",
+        workingTime: "Temps Treballant", presenceTime: "Temps de Presència",
         remaining: "Restant", theoreticalExit: "Sortida Prevista",
         canLeave: "Pots marxar de la feina", timeToLeave: "És hora de marxar",
         keepWorking: "Continua treballant", notStarted: "Jornada no iniciada",

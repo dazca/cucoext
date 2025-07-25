@@ -460,9 +460,34 @@ class CoreIntegration {
      */
     async getWorkStatus(forceRefresh = false) {
         try {
+            // Check if debug mode with custom marcajes is active
+            const storage = await chrome.storage.local.get(['customMarcajesEnabled', 'customMarcajesData', 'bypassCredentialsEnabled']);
+            const customMarcajesEnabled = storage.customMarcajesEnabled;
+            const customMarcajesData = storage.customMarcajesData;
+            const bypassCredentialsEnabled = storage.bypassCredentialsEnabled;
+            
+            if (customMarcajesEnabled && customMarcajesData) {
+                // Use debug data to calculate status
+                return await this.getDebugWorkStatus(customMarcajesData);
+            }
+            
             // Reload credentials from storage if forced or if not loaded
             if (forceRefresh || !this.credentials) {
                 await this.loadSettings();
+            }
+            
+            // If credentials are bypassed in debug mode, return mock status
+            if (bypassCredentialsEnabled) {
+                return {
+                    status: 'NOT_WORKING',
+                    workingMinutes: 0,
+                    workingSeconds: 0,
+                    presenceMinutes: 0,
+                    remainingMinutes: 0,
+                    theoreticalExit: 'N/A',
+                    message: '🐛 Debug mode - Credentials bypassed',
+                    color: 'gray'
+                };
             }
             
             const workData = await this.fetchWorkTimeData();
@@ -614,6 +639,163 @@ class CoreIntegration {
             name: this.workingHoursConfig[key].name,
             current: key === this.workingHoursSet
         }));
+    }
+
+    /**
+     * Calculate work status from debug marcajes data
+     */
+    async getDebugWorkStatus(customMarcajesData) {
+        try {
+            // Parse debug data using the same function as popup
+            const debugData = this.convertCustomMarcajesToJSON(customMarcajesData);
+            
+            if (!debugData || !debugData.entries || debugData.entries.length === 0) {
+                return {
+                    status: 'NOT_WORKING',
+                    workingMinutes: debugData.workingMinutes || 0,
+                    workingSeconds: (debugData.workingMinutes || 0) * 60,
+                    presenceMinutes: debugData.presenceMinutes || 0,
+                    remainingMinutes: 0,
+                    theoreticalExit: 'N/A',
+                    message: '🐛 Debug mode - No entry detected',
+                    color: 'gray'
+                };
+            }
+
+            const workingMinutes = debugData.workingMinutes || 0;
+            const presenceMinutes = debugData.presenceMinutes || 0;
+            const workingSeconds = workingMinutes * 60;
+            
+            // Get expected working minutes for today
+            const today = new Date();
+            const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][today.getDay()];
+            const expectedMinutes = this.workingHoursConfig[this.workingHoursSet]?.schedule[dayName]?.workMinutes || 480; // Default 8 hours
+            
+            const remainingMinutes = Math.max(0, expectedMinutes - workingMinutes);
+            
+            // Determine status based on working state and completion
+            let status, color, message;
+            
+            if (debugData.exits.length > 0 && debugData.entries.length === debugData.exits.length) {
+                // Currently out of office
+                if (remainingMinutes === 0) {
+                    status = 'CAN_LEAVE';
+                    color = 'green';
+                    message = '🐛 Debug mode - Can leave (requirements completed)';
+                } else {
+                    status = 'OUT_OF_OFFICE';
+                    color = 'yellow';
+                    message = `🐛 Debug mode - Out of office (${this.formatMinutesToTime(remainingMinutes)} remaining)`;
+                }
+            } else {
+                // Currently working
+                if (remainingMinutes === 0) {
+                    status = 'TIME_TO_LEAVE';
+                    color = 'white-blinking';
+                    message = '🐛 Debug mode - Time to leave!';
+                } else if (remainingMinutes <= 5) {
+                    status = 'CAN_LEAVE';
+                    color = 'green';
+                    message = `🐛 Debug mode - Can leave in ${remainingMinutes} minutes`;
+                } else {
+                    status = 'WORKING';
+                    color = 'blue';
+                    message = `🐛 Debug mode - Working (${this.formatMinutesToTime(remainingMinutes)} remaining)`;
+                }
+            }
+
+            return {
+                status,
+                workingMinutes,
+                workingSeconds,
+                presenceMinutes,
+                remainingMinutes,
+                theoreticalExit: 'Debug Mode',
+                message,
+                color
+            };
+
+        } catch (error) {
+            return {
+                status: 'ERROR',
+                workingMinutes: 0,
+                workingSeconds: 0,
+                presenceMinutes: 0,
+                remainingMinutes: 0,
+                theoreticalExit: 'N/A',
+                message: '🐛 Debug mode error: ' + error.message,
+                color: 'red'
+            };
+        }
+    }
+
+    /**
+     * Convert custom marcajes data to JSON format (similar to popup function)
+     */
+    convertCustomMarcajesToJSON(customMarcajesData) {
+        if (!customMarcajesData || customMarcajesData.trim() === '') {
+            throw new Error('No custom marcajes data provided');
+        }
+
+        // Try to parse as JSON first
+        try {
+            return JSON.parse(customMarcajesData);
+        } catch (e) {
+            // If JSON parsing fails, try timestamp format parsing
+        }
+
+        // Parse timestamp format: "09:20:08 E 000 | 09:29:03 S 000 | ..."
+        const entries = [];
+        const exits = [];
+        
+        const timestampRegex = /(\d{2}:\d{2}:\d{2})\s+([ES])\s+\d{3}/g;
+        let match;
+        
+        while ((match = timestampRegex.exec(customMarcajesData)) !== null) {
+            const [, time, type] = match;
+            
+            if (type === 'E') {
+                entries.push(time);
+            } else if (type === 'S') {
+                exits.push(time);
+            }
+        }
+
+        if (entries.length === 0) {
+            throw new Error('No valid timestamps found in custom marcajes data');
+        }
+
+        // Calculate working and presence minutes
+        let workingMinutes = 0;
+        let presenceMinutes = 0;
+
+        // Simple calculation: if we have entries and exits, calculate the difference
+        if (entries.length > 0) {
+            const firstEntry = this.parseTimeToMinutes(entries[0]);
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            
+            if (exits.length > 0 && entries.length === exits.length) {
+                // All periods completed
+                for (let i = 0; i < entries.length; i++) {
+                    const entryMinutes = this.parseTimeToMinutes(entries[i]);
+                    const exitMinutes = this.parseTimeToMinutes(exits[i]);
+                    workingMinutes += exitMinutes - entryMinutes;
+                }
+                presenceMinutes = workingMinutes;
+            } else {
+                // Currently working
+                presenceMinutes = currentMinutes - firstEntry;
+                workingMinutes = presenceMinutes; // Simplified - no break time calculation
+            }
+        }
+
+        return {
+            entries,
+            exits,
+            workingMinutes: Math.max(0, Math.round(workingMinutes)),
+            presenceMinutes: Math.max(0, Math.round(presenceMinutes))
+        };
     }
 }
 
