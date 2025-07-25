@@ -166,6 +166,10 @@ class BackgroundService {
                 badgeText = '✓';
                 break;
                 
+            case 'WORK_SHIFT_ENDED':
+                badgeText = '✓';
+                break;
+                
             case 'TIME_TO_LEAVE':
                 badgeText = '!!!';
                 break;
@@ -258,7 +262,7 @@ class BackgroundService {
                 
                 if (status.status === 'TIME_TO_LEAVE') {
                     notificationTitle = 'Time to Leave!';
-                    notificationMessage = 'Your working hours are exactly completed. You can leave now!\n\nHave you filled your TimeSheet yet?';
+                    notificationMessage = 'You just completed your working hours. You can leave now!\n\nHave you filled your TimeSheet yet?';
                     icon = 'white';
                 } else if (status.status === 'CAN_LEAVE') {
                     notificationTitle = 'Work Complete!';

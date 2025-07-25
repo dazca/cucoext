@@ -223,7 +223,7 @@
             background: #f8f9fa;
             border-radius: 8px;
             margin-bottom: 15px;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .tab {
@@ -236,12 +236,25 @@
             font-size: 14px;
             font-weight: 500;
             transition: all 0.2s ease;
+            position: relative;
         }
 
         .tab.active {
             background: white;
             color: #667eea;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* First tab rounded left corners */
+        .tab:first-child.active {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        /* Last tab rounded right corners */
+        .tab:last-child.active {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
 
         .tab-content {
@@ -507,6 +520,120 @@
             border-radius: 6px;
             margin: 15px 0;
         }
+
+        /* Debug Tab Styles */
+        .debug-notification {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            font-size: 8px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .debug-notification.hidden {
+            display: none;
+        }
+
+        .tab-with-notification {
+            position: relative;
+            overflow: visible;
+        }
+
+        .debug-warning-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 10px 0;
+            color: #856404;
+        }
+
+        .debug-active-indicator {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .custom-marcajes-textarea {
+            min-height: 120px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -547,7 +674,10 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab" id="configTab-btn" data-tab="config">⚙️</button>
+            <button class="tab tab-with-notification" id="configTab-btn" data-tab="config">
+                ⚙️
+                <div class="debug-notification hidden" id="debugNotification">!</div>
+            </button>
             <button class="tab active" id="statusTab-btn" data-tab="status">Status</button>
             <button class="tab" id="marcajesTab-btn" data-tab="marcajes">Marcajes</button>
             <button class="tab" id="credentialsTab-btn" data-tab="credentials">Credentials</button>
@@ -652,19 +782,8 @@
 
         <!-- Config Tab -->
         <div class="tab-content" id="configTab">
-            <div class="section">
-                <div class="section-title" id="languageSectionTitle">Language / Idioma</div>
-                <div class="form-group">
-                    <label class="form-label" id="languageLabel">Interface Language</label>
-                    <select class="form-select" id="languageSelect">
-                        <option value="auto">Auto (Browser Language)</option>
-                        <option value="en">English</option>
-                        <option value="ca">Català</option>
-                        <option value="es">Español</option>
-                    </select>
-                </div>
-            </div>
             
+            <!-- Working Hours Section -->
             <div class="section">
                 <div class="section-title" id="workingHoursScheduleTitle">Working Hours Schedule</div>
                 <div class="form-group">
@@ -685,13 +804,74 @@
                         <input type="checkbox" id="notificationsEnabled"> <span id="notificationsEnabledLabel">Enable work completion notifications</span>
                     </label>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        <input type="checkbox" id="debugLogsEnabled"> <span id="debugLogsEnabledLabel">Enable debug console logs</span>
-                    </label>
-                </div>
                 <button class="button button-primary" id="saveConfiguration-btn">Save Configuration</button>
                 <div id="configMessage"></div>
+            </div>
+            
+            <!-- Language Section -->
+            <div class="section">
+                <div class="section-title" id="languageSectionTitle">Language / Idioma</div>
+                <div class="form-group">
+                    <label class="form-label" id="languageLabel">Interface Language</label>
+                    <select class="form-select" id="languageSelect">
+                        <option value="auto">Auto (Browser Language)</option>
+                        <option value="en">English</option>
+                        <option value="ca">Català</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Debug Section -->
+            <div class="section">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>🐛 Debug Settings</span>
+                    <label class="toggle-label">
+                        <span>Enable</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="showDebugSettings">
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                </div>
+                <div id="debugSettingsContent" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="debugLogsEnabled"> <span id="debugLogsEnabledLabel">Enable debug console logs</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="customMarcajesEnabled"> <span id="customMarcajesEnabledLabel">Enable custom debug marcajes</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="bypassCredentialsEnabled"> <span id="bypassCredentialsEnabledLabel">Bypass credential validation</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Debug Active Indicator - DISABLED FOR REDUCED CLUTTER -->
+                    <!-- <div class="debug-active-indicator hidden" id="debugActiveIndicator">
+                        🚨 <span id="debugModeActiveText">Debug mode active</span>
+                    </div> -->
+
+                    <!-- Custom Marcajes Input -->
+                    <div class="form-group hidden" id="customMarcajesGroup">
+                        <label class="form-label" id="customMarcajesLabel">Custom Marcajes Data (JSON or Timestamp Format)</label>
+                        <textarea class="form-input form-textarea custom-marcajes-textarea" id="customMarcajesInput" placeholder="⚠️ Debug mode will disable real data fetching from Cuco360
+
+Supported formats:
+• Timestamp format: HH:MM:SS E 000 | HH:MM:SS S 000 | ...
+• JSON format: {&quot;entries&quot;: [&quot;09:20&quot;, &quot;13:40&quot;], &quot;exits&quot;: [&quot;12:30&quot;, &quot;17:15&quot;]}
+
+E = Entry, S = Exit. Use 'Load Sample Data' for an example."></textarea>
+                    </div>
+
+                    <button class="button button-primary" id="saveDebugConfiguration-btn">Save Debug Configuration</button>
+                    <button class="button button-secondary" id="loadSampleMarcajes-btn">Load Sample Data</button>
+                    <div id="debugConfigMessage"></div>
+                </div>
             </div>
         </div>
 

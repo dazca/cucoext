@@ -30,7 +30,8 @@ const translations = {
         
         // Status messages
         canLeave: "You can leave work", timeToLeave: "Time to leave",
-        keepWorking: "Continue working", notStarted: "Work not started",
+        keepWorking: "Working...", notStarted: "Work not started",
+        workShiftEnded: "Work shift ended",
         
         // Status detail messages
         noEntryTimeDetected: "No entry time detected", noAdditionalDetails: "No additional details",
@@ -55,6 +56,21 @@ const translations = {
         autoDetectIntensive: "Auto-detect August intensive schedule",
         enableNotifications: "Enable work completion notifications",
         enableDebugLogs: "Enable debug console logs",
+        
+        // Debug section
+        debugSection: "Debug Settings",
+        debugLogsEnabled: "Enable debug console logs",
+        debugLogsEnabledLabel: "Enable debug console logs",
+        enableCustomMarcajes: "Enable custom debug marcajes",
+        customMarcajesEnabled: "Enable custom debug marcajes",
+        customMarcajesEnabledLabel: "Enable custom debug marcajes",
+        bypassCredentialsEnabled: "Bypass credential validation",
+        bypassCredentialsEnabledLabel: "Bypass credential validation",
+        customMarcajesLabel: "Custom Marcajes Data (JSON or Timestamp Format)",
+        customMarcajesPlaceholder: "⚠️ Debug mode will disable real data fetching from Cuco360\n\nSupported formats:\n• Timestamp format: HH:MM:SS E 000 | HH:MM:SS S 000 | ...\n• JSON format: {\"entries\": [\"09:20\", \"13:40\"], \"exits\": [\"12:30\", \"17:15\"]}\n\nE = Entry, S = Exit. Use 'Load Sample Data' for an example.",
+        debugModeActive: "Debug mode active",
+        debugWarning: "Debug mode will disable real data fetching from Cuco360",
+        loadSampleData: "Load Sample Data",
         
         // Messages
         credentialsConfigured: "Credentials configured",
@@ -82,6 +98,7 @@ const translations = {
         // Status messages
         canLeave: "Pots marxar de la feina", timeToLeave: "És hora de marxar",
         keepWorking: "Continua treballant", notStarted: "Jornada no iniciada",
+        workShiftEnded: "Jornada finalitzada",
         
         // Status detail messages
         noEntryTimeDetected: "No s'ha detectat hora d'entrada", noAdditionalDetails: "Sense detalls addicionals",
@@ -106,6 +123,21 @@ const translations = {
         autoDetectIntensive: "Horari intensiu d'agost automàtic",
         enableNotifications: "Notificacions de fi de jornada",
         enableDebugLogs: "Activar registres de depuració a la consola",
+        
+        // Debug section
+        debugSection: "Configuració de Depuració",
+        debugLogsEnabled: "Activar registres de depuració a la consola",
+        debugLogsEnabledLabel: "Activar registres de depuració a la consola",
+        enableCustomMarcajes: "Activar marcatges personalitzats per depurar",
+        customMarcajesEnabled: "Activar marcatges personalitzats per depurar",
+        customMarcajesEnabledLabel: "Activar marcatges personalitzats per depurar",
+        bypassCredentialsEnabled: "Ometre validació de credencials en mode depuració",
+        bypassCredentialsEnabledLabel: "Ometre validació de credencials en mode depuració",
+        customMarcajesLabel: "Dades de Marcatges Personalitzats (JSON o Format Timestamp)",
+        customMarcajesPlaceholder: "⚠️ El mode de depuració desactivarà la descàrrega de dades reals de Cuco360\n\nFormats suportats:\n• Format timestamp: HH:MM:SS E 000 | HH:MM:SS S 000 | ...\n• Format JSON: {\"entries\": [\"09:20\", \"13:40\"], \"exits\": [\"12:30\", \"17:15\"]}\n\nE = Entrada, S = Sortida. Utilitza 'Carregar Dades d'Exemple' per veure un exemple.",
+        debugModeActive: "Mode de depuració actiu",
+        debugWarning: "El mode de depuració desactivarà la descàrrega de dades reals de Cuco360",
+        loadSampleData: "Carregar Dades d'Exemple",
         
         // Messages
         credentialsConfigured: "Credencials configurades",
@@ -133,6 +165,7 @@ const translations = {
         // Status messages
         canLeave: "Puedes marcharte del trabajo", timeToLeave: "Es hora de marcharse",
         keepWorking: "Continúa trabajando", notStarted: "Jornada no iniciada",
+        workShiftEnded: "Jornada finalizada",
         
         // Status detail messages
         noEntryTimeDetected: "No se ha detectado hora de entrada", noAdditionalDetails: "Sin detalles adicionales",
@@ -157,6 +190,21 @@ const translations = {
         autoDetectIntensive: "Detectar automáticamente el horario intensivo de agosto",
         enableNotifications: "Activar notificaciones de finalización de jornada",
         enableDebugLogs: "Activar registros de depuración en la consola",
+        
+        // Debug section
+        debugSection: "Configuración de Depuración",
+        debugLogsEnabled: "Activar registros de depuración en la consola",
+        debugLogsEnabledLabel: "Activar registros de depuración en la consola",
+        enableCustomMarcajes: "Activar marcajes personalizados de depuración",
+        customMarcajesEnabled: "Activar marcajes personalizados de depuración",
+        customMarcajesEnabledLabel: "Activar marcajes personalizados de depuración",
+        bypassCredentialsEnabled: "Omitir validación de credenciales en modo depuración",
+        bypassCredentialsEnabledLabel: "Omitir validación de credenciales en modo depuración",
+        customMarcajesLabel: "Datos de Marcajes Personalizados (JSON o Formato Timestamp)",
+        customMarcajesPlaceholder: "⚠️ El modo de depuración desactivará la descarga de datos reales de Cuco360\n\nFormatos soportados:\n• Formato timestamp: HH:MM:SS E 000 | HH:MM:SS S 000 | ...\n• Formato JSON: {\"entries\": [\"09:20\", \"13:40\"], \"exits\": [\"12:30\", \"17:15\"]}\n\nE = Entrada, S = Salida. Usa 'Cargar Datos de Ejemplo' para ver un ejemplo.",
+        debugModeActive: "Modo de depuración activo",
+        debugWarning: "El modo de depuración desactivará la descarga de datos reales de Cuco360",
+        loadSampleData: "Cargar Datos de Ejemplo",
         
         // Messages
         credentialsConfigured: "Credenciales configuradas",
@@ -328,6 +376,28 @@ function updateFormElements() {
     
     const debugLabel = document.getElementById('debugLogsEnabledLabel');
     if (debugLabel) debugLabel.textContent = t('enableDebugLogs');
+    
+    const customMarcajesLabel = document.getElementById('customMarcajesEnabledLabel');
+    if (customMarcajesLabel) customMarcajesLabel.textContent = t('enableCustomMarcajes');
+    
+    const bypassCredentialsLabel = document.getElementById('bypassCredentialsEnabledLabel');
+    if (bypassCredentialsLabel) bypassCredentialsLabel.textContent = t('bypassCredentialsEnabled');
+    
+    // Debug section elements
+    const debugSectionTitle = document.getElementById('debugSectionTitle');
+    if (debugSectionTitle) debugSectionTitle.textContent = '🐛 ' + t('debugSection');
+    
+    const customMarcajesDataLabel = document.getElementById('customMarcajesLabel');
+    if (customMarcajesDataLabel) customMarcajesDataLabel.textContent = t('customMarcajesLabel');
+    
+    const customMarcajesInputEl = document.getElementById('customMarcajesInput');
+    if (customMarcajesInputEl) customMarcajesInputEl.placeholder = t('customMarcajesPlaceholder');
+    
+    const saveDebugConfigBtn = document.getElementById('saveDebugConfiguration-btn');
+    if (saveDebugConfigBtn) saveDebugConfigBtn.textContent = t('saveConfiguration');
+    
+    const loadSampleMarcajesBtn = document.getElementById('loadSampleMarcajes-btn');
+    if (loadSampleMarcajesBtn) loadSampleMarcajesBtn.textContent = t('loadSampleData');
 }
 
 function updateExistingMessages() {
@@ -337,6 +407,212 @@ function updateExistingMessages() {
     
     const timesheetText = document.querySelector('#timesheetReminder p');
     if (timesheetText) timesheetText.textContent = t('workHoursComplete');
+}
+
+// Debug configuration functions
+function updateDebugUIState() {
+    const isCustomMarcajesEnabled = elements.customMarcajesEnabled.checked;
+    const isDebugSettingsVisible = document.getElementById('showDebugSettings')?.checked || false;
+    
+    // Show/hide custom marcajes input group
+    if (isCustomMarcajesEnabled) {
+        elements.customMarcajesGroup.classList.remove('hidden');
+        // debugActiveIndicator is now commented out - no longer used for reduced clutter
+        // elements.debugActiveIndicator.classList.remove('hidden');
+        // debugWarningSection is now inside customMarcajesGroup, so no separate control needed
+        // elements.debugWarningSection.classList.remove('hidden');
+        // Only show notification if debug settings are visible/enabled
+        if (isDebugSettingsVisible) {
+            elements.debugNotification.classList.remove('hidden');
+        } else {
+            elements.debugNotification.classList.add('hidden');
+        }
+    } else {
+        elements.customMarcajesGroup.classList.add('hidden');
+        // debugActiveIndicator is now commented out - no longer used
+        // elements.debugActiveIndicator.classList.add('hidden');
+        // debugWarningSection is now inside customMarcajesGroup, so no separate control needed
+        // elements.debugWarningSection.classList.add('hidden');
+        elements.debugNotification.classList.add('hidden');
+    }
+}
+
+async function saveDebugConfiguration() {
+    const debugLogsEnabled = elements.debugLogsEnabled.checked;
+    const customMarcajesEnabled = elements.customMarcajesEnabled.checked;
+    const bypassCredentialsEnabled = elements.bypassCredentialsEnabled.checked;
+    const customMarcajesData = elements.customMarcajesInput.value.trim();
+    
+    try {
+        // Validate custom marcajes data if enabled
+        if (customMarcajesEnabled && customMarcajesData) {
+            try {
+                convertCustomMarcajesToJSON(customMarcajesData);
+            } catch (error) {
+                throw new Error(`Invalid marcajes data: ${error.message}`);
+            }
+        }
+        
+        // Save debug settings
+        await browser.storage.local.set({ 
+            debugLogsEnabled: debugLogsEnabled,
+            customMarcajesEnabled: customMarcajesEnabled,
+            bypassCredentialsEnabled: bypassCredentialsEnabled,
+            customMarcajesData: customMarcajesData
+        });
+        
+        // Update UI state
+        updateDebugUIState();
+        
+        showMessage(elements.debugConfigMessage, t('configurationSaved'), 'success');
+    } catch (error) {
+        console.error('Error saving debug configuration:', error);
+        showMessage(elements.debugConfigMessage, `${t('errorPrefix')}: ${error.message}`, 'error');
+    }
+}
+
+function convertCustomMarcajesToJSON(timestampData) {
+    try {
+        // First, try to parse it as JSON (backward compatibility)
+        const parsed = JSON.parse(timestampData);
+        return parsed;
+    } catch (e) {
+        // If not JSON, parse as timestamp format
+        const timestamps = parseCustomMarcajesTimestamps(timestampData);
+        
+        // Convert to the format expected by the extension
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        
+        return {
+            fecha: todayStr,
+            entries: timestamps.entries,
+            exits: timestamps.exits,
+            workingMinutes: 0, // Will be calculated by the backend
+            presenceMinutes: 0  // Will be calculated by the backend
+        };
+    }
+}
+
+function parseCustomMarcajesTimestamps(detailStr) {
+    if (!detailStr) return { entries: [], exits: [] };
+    
+    const rawEntries = [];
+    const rawExits = [];
+    
+    // First pass: extract all timestamps chronologically
+    const timestamps = detailStr.split('|').map(t => t.trim()).filter(t => t);
+    const timeEntries = [];
+    
+    for (const timestamp of timestamps) {
+        const match = timestamp.match(/(\d{2}:\d{2}:\d{2})\s+([ES])/);
+        if (match) {
+            const timeStr = match[1];
+            const type = match[2];
+            const timeInMinutes = timeToMinutes(timeStr);
+            
+            timeEntries.push({
+                time: timeStr,
+                type: type,
+                timeInMinutes: timeInMinutes
+            });
+        }
+    }
+    
+    // Sort by time to ensure chronological order
+    timeEntries.sort((a, b) => a.timeInMinutes - b.timeInMinutes);
+    
+    // Second pass: collapse only truly consecutive entries/exits (same type in a row)
+    const finalEntries = [];
+    const finalExits = [];
+    
+    let lastType = null;
+    
+    for (const entry of timeEntries) {
+        if (entry.type === 'E') {
+            if (lastType !== 'E') {
+                finalEntries.push(entry.time);
+            }
+            lastType = 'E';
+        } else if (entry.type === 'S') {
+            if (lastType !== 'S') {
+                finalExits.push(entry.time);
+            }
+            lastType = 'S';
+        }
+    }
+    
+    return { entries: finalEntries, exits: finalExits };
+}
+
+function timeToMinutes(timeStr) {
+    if (!timeStr || timeStr === '--:--' || timeStr === '0') return 0;
+    const parts = timeStr.split(':').map(Number);
+    const hours = parts[0] || 0;
+    const minutes = parts[1] || 0;
+    return hours * 60 + minutes;
+}
+
+function loadSampleMarcajes() {
+    const sampleTimestampData = "09:20:08 E 000 | 09:29:03 S 000 | 09:43:59 E 000 | 11:13:14 S 000 | 11:15:01 E 000 | 12:04:43 S 000 | 12:06:29 E 000 | 13:11:04 S 000 | 13:13:09 E 000 | 13:37:44 S 000 | 13:40:29 E 000 | 14:15:13 S 000 | 14:17:08 E 000 | 14:30:41 S 000 | 14:30:48 S 000 | 14:32:40 E 000 | 14:33:06 S 000 | 14:36:03 E 000 |";
+    elements.customMarcajesInput.value = sampleTimestampData;
+}
+
+// Toggle debug settings visibility and temporarily disable debug features
+function toggleDebugSettingsVisibility() {
+    const checkbox = document.getElementById('showDebugSettings');
+    const content = document.getElementById('debugSettingsContent');
+    
+    if (checkbox && content) {
+        // Save the toggle state
+        browser.storage.local.set({ showDebugSettings: checkbox.checked });
+        
+        if (checkbox.checked) {
+            content.style.display = 'block';
+            // Re-enable debug features when shown
+            enableDebugFeatures();
+        } else {
+            content.style.display = 'none';
+            // Temporarily disable debug features when hidden
+            disableDebugFeatures();
+        }
+        
+        // Update debug UI state to show/hide notification badge
+        updateDebugUIState();
+    }
+}
+
+// Temporarily disable debug features without losing configuration
+function disableDebugFeatures() {
+    // Store current debug state temporarily
+    browser.storage.local.get(['debugLogsEnabled', 'customMarcajesEnabled', 'bypassCredentialsEnabled'], function(result) {
+        // Store the current state in a temporary key
+        browser.storage.local.set({
+            tempDebugState: {
+                debugLogsEnabled: result.debugLogsEnabled || false,
+                customMarcajesEnabled: result.customMarcajesEnabled || false,
+                bypassCredentialsEnabled: result.bypassCredentialsEnabled || false
+            },
+            // Temporarily disable all debug features
+            debugLogsEnabled: false,
+            customMarcajesEnabled: false,
+            bypassCredentialsEnabled: false
+        });
+    });
+}
+
+// Re-enable debug features from saved configuration
+function enableDebugFeatures() {
+    browser.storage.local.get(['tempDebugState'], function(result) {
+        if (result.tempDebugState) {
+            // Restore the previous debug state
+            browser.storage.local.set({
+                debugLogsEnabled: result.tempDebugState.debugLogsEnabled,
+                customMarcajesEnabled: result.tempDebugState.customMarcajesEnabled,
+                bypassCredentialsEnabled: result.tempDebugState.bypassCredentialsEnabled
+            });
+        }
+    });
 }
 
 function initializeElements() {
@@ -359,6 +635,14 @@ function initializeElements() {
         autoDetectIntensive: document.getElementById('autoDetectIntensive'),
         notificationsEnabled: document.getElementById('notificationsEnabled'),
         debugLogsEnabled: document.getElementById('debugLogsEnabled'),
+        customMarcajesEnabled: document.getElementById('customMarcajesEnabled'),
+        bypassCredentialsEnabled: document.getElementById('bypassCredentialsEnabled'),
+        customMarcajesInput: document.getElementById('customMarcajesInput'),
+        customMarcajesGroup: document.getElementById('customMarcajesGroup'),
+        // debugActiveIndicator: document.getElementById('debugActiveIndicator'), // Commented out - disabled for reduced clutter
+        // debugWarningSection: document.getElementById('debugWarningSection'), // Removed - warning text moved to placeholder
+        debugNotification: document.getElementById('debugNotification'),
+        debugConfigMessage: document.getElementById('debugConfigMessage'),
         credentialsMessage: document.getElementById('credentialsMessage'),
         configMessage: document.getElementById('configMessage'),
         refreshText: document.getElementById('refreshText'),
@@ -369,7 +653,7 @@ function initializeElements() {
 async function loadInitialState() {
     try {
         // Load stored status
-        const storage = await browser.storage.local.get(['lastStatus', 'lastUpdate', 'credentials', 'workingHoursSet', 'autoDetectIntensive', 'notificationsEnabled', 'debugLogsEnabled']);
+        const storage = await browser.storage.local.get(['lastStatus', 'lastUpdate', 'credentials', 'workingHoursSet', 'autoDetectIntensive', 'notificationsEnabled', 'debugLogsEnabled', 'customMarcajesEnabled', 'customMarcajesData', 'bypassCredentialsEnabled', 'showDebugSettings']);
         
         if (storage.lastStatus) {
             updateStatusDisplay(storage.lastStatus);
@@ -401,6 +685,42 @@ async function loadInitialState() {
         } else {
             elements.debugLogsEnabled.checked = false; // default disabled
         }
+        
+        // Load debug configuration
+        if (storage.customMarcajesEnabled !== undefined) {
+            elements.customMarcajesEnabled.checked = storage.customMarcajesEnabled;
+        } else {
+            elements.customMarcajesEnabled.checked = false; // default disabled
+        }
+        
+        if (storage.customMarcajesData) {
+            elements.customMarcajesInput.value = storage.customMarcajesData;
+        }
+        
+        // Load bypass credentials setting
+        if (storage.bypassCredentialsEnabled !== undefined) {
+            elements.bypassCredentialsEnabled.checked = storage.bypassCredentialsEnabled;
+        } else {
+            elements.bypassCredentialsEnabled.checked = false; // default disabled
+        }
+        
+        // Load debug settings visibility toggle
+        const showDebugCheckbox = document.getElementById('showDebugSettings');
+        if (showDebugCheckbox) {
+            if (storage.showDebugSettings !== undefined) {
+                showDebugCheckbox.checked = storage.showDebugSettings;
+            } else {
+                showDebugCheckbox.checked = false; // default hidden
+            }
+            // Apply the toggle state without triggering disable/enable
+            const content = document.getElementById('debugSettingsContent');
+            if (content) {
+                content.style.display = showDebugCheckbox.checked ? 'block' : 'none';
+            }
+        }
+        
+        // Update debug UI state
+        updateDebugUIState();
         
         // Show if credentials are configured
         if (storage.credentials) {
@@ -445,6 +765,14 @@ function setupEventListeners() {
             if (tabName) showTab(tabName);
         });
     });
+
+    // Semaphore click to override "Time to leave" status
+    const semaphore = document.getElementById('semaphore');
+    if (semaphore) {
+        semaphore.addEventListener('click', handleSemaphoreClick);
+        semaphore.style.cursor = 'pointer';
+        semaphore.title = 'Click to confirm you can leave (overrides Time to leave alert)';
+    }
 
     // Status tab buttons
     const refreshBtn = document.getElementById('refreshStatus-btn');
@@ -504,6 +832,31 @@ function setupEventListeners() {
             updateAllUIText();
         });
     }
+
+    // Debug configuration event listeners
+    const customMarcajesEnabledCheckbox = document.getElementById('customMarcajesEnabled');
+    if (customMarcajesEnabledCheckbox) {
+        customMarcajesEnabledCheckbox.addEventListener('change', updateDebugUIState);
+    }
+    
+    const saveDebugConfigBtn = document.getElementById('saveDebugConfiguration-btn');
+    if (saveDebugConfigBtn) {
+        saveDebugConfigBtn.addEventListener('click', saveDebugConfiguration);
+    }
+    
+    const loadSampleMarcajesBtn = document.getElementById('loadSampleMarcajes-btn');
+    if (loadSampleMarcajesBtn) {
+        loadSampleMarcajesBtn.addEventListener('click', loadSampleMarcajes);
+    }
+    
+    // Debug section toggle functionality
+    const showDebugSettingsCheckbox = document.getElementById('showDebugSettings');
+    if (showDebugSettingsCheckbox) {
+        showDebugSettingsCheckbox.addEventListener('change', toggleDebugSettingsVisibility);
+    }
+    
+    // Make toggle function globally accessible for inline onclick (backup)
+    window.toggleDebugSettingsVisibility = toggleDebugSettingsVisibility;
 }
 
 // Tab management
@@ -523,12 +876,27 @@ function showTab(tabName) {
     if (selectedContent) selectedContent.classList.add('active');
 }
 
+// Check if debug mode is active with custom marcajes data
+async function isDebugModeActive() {
+    const storage = await browser.storage.local.get(['customMarcajesEnabled', 'customMarcajesData']);
+    return storage.customMarcajesEnabled && storage.customMarcajesData && storage.customMarcajesData.trim() !== '';
+}
+
 // Status management
 async function refreshStatus() {
     console.log('🔧 DEBUG: Popup refresh status called');
     setLoading(true);
     
     try {
+        // Check if debug mode is active
+        const debugMode = await isDebugModeActive();
+        if (debugMode) {
+            // In debug mode, show a message indicating status refresh is disabled
+            showMessage(elements.credentialsMessage, '🐛 Debug mode active - Status refresh disabled', 'warning', 3000);
+            setLoading(false);
+            return;
+        }
+        
         console.log('🔧 DEBUG: Sending forceUpdate message to background');
         const response = await sendMessage({ action: 'forceUpdate' });
         console.log('🔧 DEBUG: Got response from background:', response);
@@ -546,6 +914,38 @@ async function refreshStatus() {
         showMessage(elements.credentialsMessage, `Error: ${error.message}`, 'error');
     } finally {
         setLoading(false);
+    }
+}
+
+// Handle semaphore click to override "Time to leave" status
+async function handleSemaphoreClick() {
+    try {
+        // Only allow override for TIME_TO_LEAVE status
+        const currentStatus = await sendMessage({ action: 'getLastStatus' });
+        
+        if (currentStatus && currentStatus.data && currentStatus.data.status === 'TIME_TO_LEAVE') {
+            // Set override flag for today
+            const today = new Date().toDateString();
+            await browser.storage.local.set({
+                timeToLeaveOverride: true,
+                overrideDate: today
+            });
+            
+            console.log('🔧 DEBUG: Time to leave override activated for today');
+            
+            // Refresh status to apply override
+            await refreshStatus();
+            
+            // Show brief confirmation
+            const semaphore = document.getElementById('semaphore');
+            const originalText = semaphore.textContent;
+            semaphore.textContent = '✅';
+            setTimeout(() => {
+                semaphore.textContent = originalText;
+            }, 1000);
+        }
+    } catch (error) {
+        console.error('Error handling semaphore click:', error);
     }
 }
 
@@ -569,6 +969,7 @@ function updateStatusDisplay(status) {
         'CAN_LEAVE': '🟢',
         'TIME_TO_LEAVE': '⚪',
         'NOT_WORKING': '⚫',
+        'WORK_SHIFT_ENDED': '⚫',
         'CREDENTIALS_EXPIRED': '🔴',
         'ERROR': '🔴'
     };
@@ -584,7 +985,7 @@ function updateStatusDisplay(status) {
     
     // Update status message and details
     elements.statusMessage.textContent = getStatusTitle(status.status);
-    elements.statusDetails.textContent = translateStatusMessage(status.message || 'No additional details');
+    elements.statusDetails.innerHTML = translateStatusMessage(status.message || 'No additional details');
     
     // Update working time details
     if (status.workingMinutes > 0 || status.remainingMinutes >= 0) {
@@ -625,6 +1026,7 @@ function getStatusTitle(status) {
         'CAN_LEAVE': t('canLeave'),
         'TIME_TO_LEAVE': t('timeToLeave'),
         'NOT_WORKING': t('notStarted'),
+        'WORK_SHIFT_ENDED': t('workShiftEnded'),
         'CREDENTIALS_EXPIRED': t('errorPrefix'),
         'ERROR': t('errorPrefix')
     };

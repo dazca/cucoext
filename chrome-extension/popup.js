@@ -37,10 +37,13 @@ const translations = {
         theoreticalExit: "Expected Exit",
         
         // Status messages
-        canLeave: "You can leave work",
+        canLeave: "Can leave now",
         timeToLeave: "Time to leave",
-        keepWorking: "Continue working",
+        prepareToLeave: "Prepare to leave",
+        keepWorking: "Working...",
         notStarted: "Work not started",
+        outOfOffice: "Out of office",
+        workShiftEnded: "Work shift ended",
         
         // Status detail messages
         noEntryTimeDetected: "No entry time detected",
@@ -91,9 +94,9 @@ const translations = {
         // Debug section
         debugSection: "Debug Settings",
         enableCustomMarcajes: "Enable custom debug marcajes",
-        bypassCredentialsEnabled: "Bypass credential validation in debug mode",
+        bypassCredentialsEnabled: "Bypass credential validation",
         customMarcajesLabel: "Custom Marcajes Data (JSON or Timestamp Format)",
-        customMarcajesPlaceholder: "Enter custom marcajes data for testing (JSON format or timestamp format: HH:MM:SS E 000 | ...)",
+        customMarcajesPlaceholder: "⚠️ Debug mode will disable real data fetching from Cuco360\n\nSupported formats:\n• Timestamp format: HH:MM:SS E 000 | HH:MM:SS S 000 | ...\n• JSON format: {\"entries\": [\"09:20\", \"13:40\"], \"exits\": [\"12:30\", \"17:15\"]}\n\nE = Entry, S = Exit. Use 'Load Sample Data' for an example.",
         debugModeActive: "Debug mode active",
         debugWarning: "Debug mode will disable real data fetching from Cuco360",
         loadSampleData: "Load Sample Data",
@@ -188,8 +191,11 @@ const translations = {
         // Status messages
         canLeave: "Pots marxar de la feina",
         timeToLeave: "És hora de marxar",
+        prepareToLeave: "Prepara't per marxar",
         keepWorking: "Continua treballant",
         notStarted: "Jornada no iniciada",
+        outOfOffice: "Fora de l'oficina",
+        workShiftEnded: "Jornada finalitzada",
         
         // Status detail messages
         noEntryTimeDetected: "No s'ha detectat hora d'entrada",
@@ -242,7 +248,7 @@ const translations = {
         enableCustomMarcajes: "Activar marcatges personalitzats per depurar",
         bypassCredentialsEnabled: "Ometre validació de credencials en mode depuració",
         customMarcajesLabel: "Dades de Marcatges Personalitzats (JSON o Format Timestamp)",
-        customMarcajesPlaceholder: "Introdueix dades de marcatges personalitzats per provar (format JSON o format timestamp: HH:MM:SS E 000 | ...)",
+        customMarcajesPlaceholder: "⚠️ El mode de depuració desactivarà la descàrrega de dades reals de Cuco360\n\nFormats suportats:\n• Format timestamp: HH:MM:SS E 000 | HH:MM:SS S 000 | ...\n• Format JSON: {\"entries\": [\"09:20\", \"13:40\"], \"exits\": [\"12:30\", \"17:15\"]}\n\nE = Entrada, S = Sortida. Utilitza 'Carregar Dades d'Exemple' per veure un exemple.",
         debugModeActive: "Mode de depuració actiu",
         debugWarning: "El mode de depuració desactivarà la descàrrega de dades reals de Cuco360",
         loadSampleData: "Carregar Dades d'Exemple",
@@ -337,8 +343,11 @@ const translations = {
         // Status messages
         canLeave: "Puedes marcharte del trabajo",
         timeToLeave: "Es hora de marcharse",
+        prepareToLeave: "Prepárate para marcharte",
         keepWorking: "Continúa trabajando",
         notStarted: "Jornada no iniciada",
+        outOfOffice: "Fuera de la oficina",
+        workShiftEnded: "Jornada finalizada",
         
         // Status detail messages
         noEntryTimeDetected: "No se ha detectado hora de entrada",
@@ -391,7 +400,7 @@ const translations = {
         enableCustomMarcajes: "Activar marcajes personalizados de depuración",
         bypassCredentialsEnabled: "Omitir validación de credenciales en modo depuración",
         customMarcajesLabel: "Datos de Marcajes Personalizados (JSON o Formato Timestamp)",
-        customMarcajesPlaceholder: "Introduce datos de marcajes personalizados para probar (formato JSON o formato timestamp: HH:MM:SS E 000 | ...)",
+        customMarcajesPlaceholder: "⚠️ El modo de depuración desactivará la descarga de datos reales de Cuco360\n\nFormatos soportados:\n• Formato timestamp: HH:MM:SS E 000 | HH:MM:SS S 000 | ...\n• Formato JSON: {\"entries\": [\"09:20\", \"13:40\"], \"exits\": [\"12:30\", \"17:15\"]}\n\nE = Entrada, S = Salida. Usa 'Cargar Datos de Ejemplo' para ver un ejemplo.",
         debugModeActive: "Modo de depuración activo",
         debugWarning: "El modo de depuración desactivará la descarga de datos reales de Cuco360",
         loadSampleData: "Cargar Datos de Ejemplo",
@@ -861,8 +870,8 @@ function initializeElements() {
         bypassCredentialsEnabled: document.getElementById('bypassCredentialsEnabled'),
         customMarcajesInput: document.getElementById('customMarcajesInput'),
         customMarcajesGroup: document.getElementById('customMarcajesGroup'),
-        debugActiveIndicator: document.getElementById('debugActiveIndicator'),
-        debugWarningSection: document.getElementById('debugWarningSection'),
+        // debugActiveIndicator: document.getElementById('debugActiveIndicator'), // Commented out - disabled for reduced clutter
+        // debugWarningSection: document.getElementById('debugWarningSection'), // Removed - warning text moved to placeholder
         debugNotification: document.getElementById('debugNotification'),
         debugConfigMessage: document.getElementById('debugConfigMessage'),
         credentialsMessage: document.getElementById('credentialsMessage'),
@@ -997,6 +1006,14 @@ function setupEventListeners() {
         });
     });
 
+    // Semaphore click to override "Time to leave" status
+    const semaphore = document.getElementById('semaphore');
+    if (semaphore) {
+        semaphore.addEventListener('click', handleSemaphoreClick);
+        semaphore.style.cursor = 'pointer';
+        semaphore.title = 'Click to confirm you can leave (overrides Time to leave alert)';
+    }
+
     // Status tab buttons
     const refreshBtn = document.getElementById('refreshStatus-btn');
     if (refreshBtn) {
@@ -1130,6 +1147,9 @@ function toggleDebugSettingsVisibility() {
             disableDebugFeatures();
             console.log('🔧 DEBUG: Debug settings hidden and features disabled');
         }
+        
+        // Update debug UI state to show/hide notification badge
+        updateDebugUIState();
     }
 }
 
@@ -1174,17 +1194,27 @@ function enableDebugFeatures() {
 // Debug configuration functions
 function updateDebugUIState() {
     const isCustomMarcajesEnabled = elements.customMarcajesEnabled.checked;
+    const isDebugSettingsVisible = document.getElementById('showDebugSettings')?.checked || false;
     
     // Show/hide custom marcajes input group
     if (isCustomMarcajesEnabled) {
         elements.customMarcajesGroup.classList.remove('hidden');
-        elements.debugActiveIndicator.classList.remove('hidden');
-        elements.debugWarningSection.classList.remove('hidden');
-        elements.debugNotification.classList.remove('hidden');
+        // debugActiveIndicator is now commented out - no longer used for reduced clutter
+        // elements.debugActiveIndicator.classList.remove('hidden');
+        // debugWarningSection is now inside customMarcajesGroup, so no separate control needed
+        // elements.debugWarningSection.classList.remove('hidden');
+        // Only show notification if debug settings are visible/enabled
+        if (isDebugSettingsVisible) {
+            elements.debugNotification.classList.remove('hidden');
+        } else {
+            elements.debugNotification.classList.add('hidden');
+        }
     } else {
         elements.customMarcajesGroup.classList.add('hidden');
-        elements.debugActiveIndicator.classList.add('hidden');
-        elements.debugWarningSection.classList.add('hidden');
+        // debugActiveIndicator is now commented out - no longer used
+        // elements.debugActiveIndicator.classList.add('hidden');
+        // debugWarningSection is now inside customMarcajesGroup, so no separate control needed
+        // elements.debugWarningSection.classList.add('hidden');
         elements.debugNotification.classList.add('hidden');
     }
 }
@@ -1224,14 +1254,16 @@ async function saveDebugConfiguration() {
     }
 }
 
-// Parse timestamps from detail column format (same as core-integration.js)
+// Parse timestamps from detail column format with consecutive E/S collapsing
 function parseCustomMarcajesTimestamps(detailStr) {
     if (!detailStr) return { entries: [], exits: [] };
     
-    const entries = [];
-    const exits = [];
+    const rawEntries = [];
+    const rawExits = [];
     
+    // First pass: extract all timestamps chronologically
     const timestamps = detailStr.split('|').map(t => t.trim()).filter(t => t);
+    const timeEntries = [];
     
     for (const timestamp of timestamps) {
         const match = timestamp.match(/(\d{2}:\d{2}:\d{2})\s+([ES])/);
@@ -1239,15 +1271,51 @@ function parseCustomMarcajesTimestamps(detailStr) {
             const time = match[1].substring(0, 5); // Remove seconds, keep HH:MM
             const type = match[2];
             
-            if (type === 'E') {
-                entries.push(time);
-            } else if (type === 'S') {
-                exits.push(time);
-            }
+            timeEntries.push({
+                time: time,
+                type: type,
+                timeInMinutes: timeToMinutes(time)
+            });
         }
     }
     
-    return { entries, exits };
+    // Sort by time to ensure chronological order
+    timeEntries.sort((a, b) => a.timeInMinutes - b.timeInMinutes);
+    
+    // Second pass: collapse only truly consecutive entries/exits (same type in a row)
+    const finalEntries = [];
+    const finalExits = [];
+    
+    let lastType = null;
+    
+    for (const entry of timeEntries) {
+        if (entry.type === 'E') {
+            if (lastType !== 'E') {
+                // Not consecutive, add this entry
+                finalEntries.push(entry.time);
+            } else {
+                // Consecutive entry, replace the last one with this later time
+                finalEntries[finalEntries.length - 1] = entry.time;
+            }
+            lastType = 'E';
+        } else if (entry.type === 'S') {
+            if (lastType !== 'S') {
+                // Not consecutive, add this exit
+                finalExits.push(entry.time);
+            } else {
+                // Consecutive exit, replace the last one with this later time
+                finalExits[finalExits.length - 1] = entry.time;
+            }
+            lastType = 'S';
+        }
+    }
+    
+    console.log('🔧 DEBUG: Parsed timestamps - Raw entries:', rawEntries.length, 'Raw exits:', rawExits.length);
+    console.log('🔧 DEBUG: Collapsed timestamps - Final entries:', finalEntries.length, 'Final exits:', finalExits.length);
+    console.log('🔧 DEBUG: Final entries:', finalEntries);
+    console.log('🔧 DEBUG: Final exits:', finalExits);
+    
+    return { entries: finalEntries, exits: finalExits };
 }
 
 // Helper function to convert time string to minutes
@@ -1278,39 +1346,46 @@ function convertCustomMarcajesToJSON(timestampData) {
         let presenceMinutes = 0;
         
         if (timestamps.entries.length > 0) {
-            // Calculate presence time by summing all entry-exit periods
-            for (let i = 0; i < timestamps.entries.length; i++) {
-                const entryTime = timeToMinutes(timestamps.entries[i]);
-                let exitTime;
-
-                if (i < timestamps.exits.length) {
-                    // There's a corresponding exit
-                    exitTime = timeToMinutes(timestamps.exits[i]);
-                } else {
-                    // No exit yet, person is still inside - use current time
-                    const now = new Date();
-                    exitTime = now.getHours() * 60 + now.getMinutes();
-                }
-
-                // Add this presence period
-                presenceMinutes += Math.max(0, exitTime - entryTime);
-            }
-            
-            // For working minutes, we'll use a simplified calculation
-            // (first entry to last exit or current time)
+            // Working Time = Total time from first entry to current time (or last exit if finished)
             const firstEntryMinutes = timeToMinutes(timestamps.entries[0]);
-            let lastTimeMinutes;
             
             if (timestamps.exits.length > 0 && timestamps.entries.length === timestamps.exits.length) {
-                // Person has exited, use last exit
-                lastTimeMinutes = timeToMinutes(timestamps.exits[timestamps.exits.length - 1]);
+                // All periods completed
+                // Working Time = from first entry to last exit (total timespan)
+                const lastExitMinutes = timeToMinutes(timestamps.exits[timestamps.exits.length - 1]);
+                workingMinutes = lastExitMinutes - firstEntryMinutes;
+                
+                // Presence Time = sum of actual working periods (excluding breaks)
+                for (let i = 0; i < timestamps.entries.length; i++) {
+                    const entryTime = timeToMinutes(timestamps.entries[i]);
+                    const exitTime = timeToMinutes(timestamps.exits[i]);
+                    const periodTime = Math.max(0, exitTime - entryTime);
+                    presenceMinutes += periodTime;
+                }
             } else {
-                // Person is still inside, use current time
+                // Currently working
                 const now = new Date();
-                lastTimeMinutes = now.getHours() * 60 + now.getMinutes();
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                
+                // Working Time = from first entry to current time (total timespan)
+                workingMinutes = currentMinutes - firstEntryMinutes;
+                
+                // Presence Time = sum of completed periods + current working period
+                const completedPairs = Math.min(timestamps.entries.length, timestamps.exits.length);
+                for (let i = 0; i < completedPairs; i++) {
+                    const entryTime = timeToMinutes(timestamps.entries[i]);
+                    const exitTime = timeToMinutes(timestamps.exits[i]);
+                    const periodTime = Math.max(0, exitTime - entryTime);
+                    presenceMinutes += periodTime;
+                }
+                
+                // Add current working period if still in office
+                if (timestamps.entries.length > timestamps.exits.length) {
+                    const lastEntryMinutes = timeToMinutes(timestamps.entries[timestamps.entries.length - 1]);
+                    const currentPeriodMinutes = Math.max(0, currentMinutes - lastEntryMinutes);
+                    presenceMinutes += currentPeriodMinutes;
+                }
             }
-            
-            workingMinutes = Math.max(0, lastTimeMinutes - firstEntryMinutes);
         }
         
         return {
@@ -1327,8 +1402,9 @@ function convertCustomMarcajesToJSON(timestampData) {
 
 function loadSampleMarcajes() {
     // Sample data in the Cuco360 format (timestamp format from detail column)
-    // This example shows multiple entries and exits throughout the day
-    const sampleTimestampData = "09:20:08 E 000 | 09:29:03 S 000 | 09:43:59 E 000 | 11:13:14 S 000 | 11:15:01 E 000 | 12:04:43 S 000 | 12:06:29 E 000 | 13:11:04 S 000 | 13:13:09 E 000 | 13:37:44 S 000 | 13:40:29 E 000 | 14:15:13 S 000 | 14:17:08 E 000 | 14:30:41 S 000 | 14:32:40 E 000 | 17:15:00 S 000";
+    // This example shows multiple entries and exits throughout the day, including consecutive exits
+    // This demonstrates the robust parsing that handles consecutive E or S timestamps
+    const sampleTimestampData = "09:20:08 E 000 | 09:29:03 S 000 | 09:43:59 E 000 | 11:13:14 S 000 | 11:15:01 E 000 | 12:04:43 S 000 | 12:06:29 E 000 | 13:11:04 S 000 | 13:13:09 E 000 | 13:37:44 S 000 | 13:40:29 E 000 | 14:15:13 S 000 | 14:17:08 E 000 | 14:30:41 S 000 | 14:30:48 S 000 | 14:32:40 E 000 | 14:33:06 S 000 | 14:36:03 E 000 |";
     
     elements.customMarcajesInput.value = sampleTimestampData;
 }
@@ -1401,8 +1477,45 @@ function setLoading(isLoading) {
     }
 }
 
+// Handle semaphore click to override "Time to leave" status
+async function handleSemaphoreClick() {
+    try {
+        // Only allow override for TIME_TO_LEAVE status
+        const currentStatus = await sendMessage({ action: 'getLastStatus' });
+        
+        if (currentStatus && currentStatus.data && currentStatus.data.status === 'TIME_TO_LEAVE') {
+            // Set override flag for today
+            const today = new Date().toDateString();
+            await chrome.storage.local.set({
+                timeToLeaveOverride: true,
+                overrideDate: today
+            });
+            
+            console.log('🔧 DEBUG: Time to leave override activated for today');
+            
+            // Refresh status to apply override
+            await refreshStatus();
+            
+            // Show brief confirmation
+            const semaphore = document.getElementById('semaphore');
+            const originalText = semaphore.textContent;
+            semaphore.textContent = '✅';
+            setTimeout(() => {
+                semaphore.textContent = originalText;
+            }, 1000);
+        }
+    } catch (error) {
+        console.error('Error handling semaphore click:', error);
+    }
+}
+
 function updateStatusDisplay(status) {
-    if (!status) return;
+    if (!status) {
+        console.log('🔧 DEBUG: updateStatusDisplay called with null/undefined status');
+        return;
+    }
+    
+    console.log('🔧 DEBUG: updateStatusDisplay called with status:', status);
     
     // Update semaphore
     const semaphoreIcons = {
@@ -1411,11 +1524,13 @@ function updateStatusDisplay(status) {
         'CAN_LEAVE': '🟢',
         'TIME_TO_LEAVE': '⚪',
         'NOT_WORKING': '⚫',
+        'WORK_SHIFT_ENDED': '⚫',
         'CREDENTIALS_EXPIRED': '🔴',
         'ERROR': '🔴'
     };
     
     elements.semaphore.textContent = semaphoreIcons[status.status] || '❓';
+    console.log('🔧 DEBUG: Updated semaphore to:', elements.semaphore.textContent, 'for status:', status.status);
     
     // Handle blinking for TIME_TO_LEAVE
     if (status.status === 'TIME_TO_LEAVE') {
@@ -1425,8 +1540,18 @@ function updateStatusDisplay(status) {
     }
     
     // Update status message and details
-    elements.statusMessage.textContent = getStatusTitle(status.status);
-    elements.statusDetails.textContent = translateStatusMessage(status.message || 'No additional details');
+    const statusTitle = getStatusTitle(status.status);
+    const statusMessage = translateStatusMessage(status.message || 'No additional details');
+    elements.statusMessage.textContent = statusTitle;
+    elements.statusDetails.innerHTML = statusMessage;
+    
+    console.log('🔧 DEBUG: Updated status display:', {
+        statusTitle,
+        statusMessage,
+        workingMinutes: status.workingMinutes,
+        remainingMinutes: status.remainingMinutes,
+        theoreticalExit: status.theoreticalExit
+    });
     
     // Update working time details
     if (status.workingMinutes > 0 || status.remainingMinutes >= 0) {
@@ -1463,7 +1588,9 @@ function updateStatusDisplay(status) {
 function getStatusTitle(status) {
     const statusMap = {
         'WORKING': t('keepWorking'),
-        'OUT_OF_OFFICE': t('notStarted'),
+        'PREPARE_TO_LEAVE': t('prepareToLeave'),
+        'OUT_OF_OFFICE': t('outOfOffice'),
+        'WORK_SHIFT_ENDED': t('workShiftEnded'),
         'CAN_LEAVE': t('canLeave'),
         'TIME_TO_LEAVE': t('timeToLeave'),
         'NOT_WORKING': t('notStarted'),
@@ -1471,10 +1598,14 @@ function getStatusTitle(status) {
         'ERROR': t('errorPrefix')
     };
     
-    return statusMap[status] || status;
+    const result = statusMap[status] || status;
+    console.log('🔧 DEBUG: getStatusTitle mapped', status, 'to', result);
+    return result;
 }
 
 function translateStatusMessage(message) {
+    console.log('🔧 DEBUG: translateStatusMessage called with:', message);
+    
     // Translate common status messages from core-integration
     const messageMap = {
         'No entry time detected': t('noEntryTimeDetected'),
@@ -1487,21 +1618,29 @@ function translateStatusMessage(message) {
     // Handle dynamic messages with patterns
     if (message.includes('Out of office -') && message.includes('remaining')) {
         const remainingPart = message.split('Out of office - ')[1];
-        return `${t('notStarted')} - ${remainingPart}`;
+        const result = `${t('notStarted')} - ${remainingPart}`;
+        console.log('🔧 DEBUG: Translated out of office message to:', result);
+        return result;
     }
     
     if (message.includes('Working -') && message.includes('remaining')) {
         const remainingPart = message.split('Working - ')[1];
-        return `${t('keepWorking')} - ${remainingPart}`;
+        const result = `${t('keepWorking')} - ${remainingPart}`;
+        console.log('🔧 DEBUG: Translated working message to:', result);
+        return result;
     }
     
     if (message.includes('Can leave in') && message.includes('minutes')) {
         const minutesPart = message.split('Can leave in ')[1];
-        return `${t('canLeave')} en ${minutesPart}`;
+        const result = `${t('canLeave')} en ${minutesPart}`;
+        console.log('🔧 DEBUG: Translated can leave message to:', result);
+        return result;
     }
     
     // Return translated message if found, otherwise return original
-    return messageMap[message] || message;
+    const result = messageMap[message] || message;
+    console.log('🔧 DEBUG: Final translated message:', result);
+    return result;
 }
 
 function formatMinutesToTime(minutes) {
@@ -1880,8 +2019,10 @@ function showMessage(element, message, type, duration = 5000) {
 }
 
 function sendMessage(message) {
+    console.log('🔧 DEBUG: Sending message to background:', message);
     return new Promise((resolve) => {
         chrome.runtime.sendMessage(message, (response) => {
+            console.log('🔧 DEBUG: Received response from background:', response);
             resolve(response || { success: false, error: 'No response' });
         });
     });

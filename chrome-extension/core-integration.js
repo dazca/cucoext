@@ -646,10 +646,14 @@ class CoreIntegration {
      */
     async getDebugWorkStatus(customMarcajesData) {
         try {
+            console.log('🔧 DEBUG: getDebugWorkStatus called with data:', customMarcajesData);
+            
             // Parse debug data using the same function as popup
             const debugData = this.convertCustomMarcajesToJSON(customMarcajesData);
+            console.log('🔧 DEBUG: Parsed debug data:', debugData);
             
             if (!debugData || !debugData.entries || debugData.entries.length === 0) {
+                console.log('🔧 DEBUG: No entries found, returning NOT_WORKING');
                 return {
                     status: 'NOT_WORKING',
                     workingMinutes: debugData.workingMinutes || 0,
@@ -657,7 +661,7 @@ class CoreIntegration {
                     presenceMinutes: debugData.presenceMinutes || 0,
                     remainingMinutes: 0,
                     theoreticalExit: 'N/A',
-                    message: '🐛 Debug mode - No entry detected',
+                    message: '🐛 Debug mode<br>No entry detected',
                     color: 'gray'
                 };
             }
@@ -666,56 +670,173 @@ class CoreIntegration {
             const presenceMinutes = debugData.presenceMinutes || 0;
             const workingSeconds = workingMinutes * 60;
             
+            console.log('🔧 DEBUG: Working time calculations:', {
+                workingMinutes,
+                presenceMinutes,
+                workingSeconds
+            });
+            
             // Get expected working minutes for today
             const today = new Date();
-            const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][today.getDay()];
-            const expectedMinutes = this.workingHoursConfig[this.workingHoursSet]?.schedule[dayName]?.workMinutes || 480; // Default 8 hours
+            const dayWorkingHours = this.getDayWorkingHours(today);
+            const expectedMinutes = dayWorkingHours.workMinutes;
             
-            const remainingMinutes = Math.max(0, expectedMinutes - workingMinutes);
+            console.log('🔧 DEBUG: Working hours configuration:', {
+                today: today.toDateString(),
+                dayName: dayWorkingHours.day,
+                setName: dayWorkingHours.setName,
+                expectedMinutes: expectedMinutes,
+                workingHoursSet: this.workingHoursSet
+            });
+            
+            const remainingMinutes = Math.max(0, expectedMinutes - presenceMinutes);
+            
+            console.log('🔧 DEBUG: Remaining calculation:', {
+                expectedMinutes,
+                presenceMinutes,
+                workingMinutes,
+                remainingMinutes
+            });
             
             // Determine status based on working state and completion
             let status, color, message;
             
-            if (debugData.exits.length > 0 && debugData.entries.length === debugData.exits.length) {
-                // Currently out of office
+            // Check if currently in office: more entries than exits means currently working
+            const currentlyInOffice = debugData.entries.length > debugData.exits.length;
+            
+            // Check if theoretical exit time has passed
+            let theoreticalExitPassed = false;
+            if (debugData.entries.length > 0) {
+                const firstEntry = debugData.entries[0];
+                const theoreticalExitCalc = this.calculateTheoreticalExit(firstEntry);
+                const now = new Date();
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                const theoreticalExitMinutes = this.parseTimeToMinutes(theoreticalExitCalc.exitTime);
+                theoreticalExitPassed = currentMinutes > theoreticalExitMinutes;
+            }
+            
+            // Check for user override (semaphore clicked to skip "Time to leave")
+            const storage = await chrome.storage.local.get(['timeToLeaveOverride', 'overrideDate', 'timeToLeaveFirstShown', 'firstShownDate']);
+            const todayStr = new Date().toDateString();
+            const hasOverride = storage.timeToLeaveOverride && storage.overrideDate === todayStr;
+            
+            // Check if 5 minutes have passed since first "Time to leave" notification
+            let autoTransitionToCanLeave = false;
+            if (storage.timeToLeaveFirstShown && storage.firstShownDate === todayStr) {
+                const now = new Date();
+                const firstShownTime = new Date(storage.timeToLeaveFirstShown);
+                const minutesElapsed = (now - firstShownTime) / (1000 * 60);
+                autoTransitionToCanLeave = minutesElapsed >= 5;
+            }
+            
+            console.log('🔧 DEBUG: Status determination:', {
+                entriesCount: debugData.entries.length,
+                exitsCount: debugData.exits.length,
+                currentlyInOffice,
+                remainingMinutes,
+                theoreticalExitPassed,
+                hasOverride,
+                autoTransitionToCanLeave,
+                firstShownTime: storage.timeToLeaveFirstShown
+            });
+            
+            if (theoreticalExitPassed && !currentlyInOffice) {
+                // Work shift ended (theoretical exit passed and not in office)
+                status = 'WORK_SHIFT_ENDED';
+                color = 'green';
+                message = `🐛 Debug mode<br>Work shift ended`;
+                console.log('🔧 DEBUG: Work shift ended status:', { status, color, message });
+            } else if (currentlyInOffice) {
+                // Currently working - check for overtime and adjust thresholds
+                const now = new Date();
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                let overtimeMinutes = 0;
+                
+                // Calculate overtime if presence requirement is met
+                if (remainingMinutes <= 0) {
+                    overtimeMinutes = Math.abs(remainingMinutes);
+                }
+                
+                if (remainingMinutes <= -5) {
+                    // More than 5 minutes overtime - can leave now
+                    status = 'CAN_LEAVE';
+                    color = 'green';
+                    message = `🐛 Debug mode<br>Can leave now (${overtimeMinutes}min overtime)`;
+                } else if (remainingMinutes <= 0 && !hasOverride && !autoTransitionToCanLeave) {
+                    // 0-5 minutes overtime - time to leave (blinking), unless overridden or auto-transitioned
+                    status = 'TIME_TO_LEAVE';
+                    color = 'white-blinking';
+                    message = `🐛 Debug mode<br>Time to leave!`;
+                    
+                    // Record first time "Time to leave" appears today
+                    if (!storage.timeToLeaveFirstShown || storage.firstShownDate !== todayStr) {
+                        await chrome.storage.local.set({
+                            timeToLeaveFirstShown: new Date().toISOString(),
+                            firstShownDate: todayStr
+                        });
+                        console.log('🔧 DEBUG: First "Time to leave" notification recorded');
+                    }
+                } else if ((remainingMinutes <= 0 && hasOverride) || autoTransitionToCanLeave) {
+                    // Override active or 5 minutes elapsed - show can leave instead of time to leave
+                    status = 'CAN_LEAVE';
+                    color = 'green';
+                    const reason = hasOverride ? 'confirmed' : '5min elapsed';
+                    message = `🐛 Debug mode<br>Can leave now (${reason})`;
+                } else if (remainingMinutes <= 5) {
+                    // 5 minutes or less remaining - prepare to leave (green)
+                    status = 'PREPARE_TO_LEAVE';
+                    color = 'green';
+                    message = `🐛 Debug mode<br>Prepare to leave (${remainingMinutes}min remaining)`;
+                } else {
+                    // More than 2 minutes remaining - working
+                    status = 'WORKING';
+                    color = 'blue';
+                    message = `🐛 Debug mode<br>Working (${this.formatMinutesToTime(remainingMinutes)} remaining)`;
+                }
+                console.log('🔧 DEBUG: Currently in office status:', { status, color, message, overtimeMinutes });
+            } else {
+                // Currently out of office (equal entries and exits)
                 if (remainingMinutes === 0) {
                     status = 'CAN_LEAVE';
                     color = 'green';
-                    message = '🐛 Debug mode - Can leave (requirements completed)';
+                    message = `🐛 Debug mode<br>Can leave (requirements completed)`;
                 } else {
                     status = 'OUT_OF_OFFICE';
                     color = 'yellow';
-                    message = `🐛 Debug mode - Out of office (${this.formatMinutesToTime(remainingMinutes)} remaining)`;
+                    message = `🐛 Debug mode<br>Out of office (${this.formatMinutesToTime(remainingMinutes)} remaining)`;
                 }
-            } else {
-                // Currently working
-                if (remainingMinutes === 0) {
-                    status = 'TIME_TO_LEAVE';
-                    color = 'white-blinking';
-                    message = '🐛 Debug mode - Time to leave!';
-                } else if (remainingMinutes <= 5) {
-                    status = 'CAN_LEAVE';
-                    color = 'green';
-                    message = `🐛 Debug mode - Can leave in ${remainingMinutes} minutes`;
-                } else {
-                    status = 'WORKING';
-                    color = 'blue';
-                    message = `🐛 Debug mode - Working (${this.formatMinutesToTime(remainingMinutes)} remaining)`;
-                }
+                console.log('🔧 DEBUG: Currently out of office status:', { status, color, message });
             }
 
-            return {
+            // Calculate theoretical exit time based on first entry
+            let theoreticalExit = 'N/A';
+            if (debugData.entries.length > 0) {
+                const firstEntry = debugData.entries[0];
+                const theoreticalExitCalc = this.calculateTheoreticalExit(firstEntry);
+                theoreticalExit = theoreticalExitCalc.exitTime;
+                console.log('🔧 DEBUG: Theoretical exit calculation:', {
+                    firstEntry,
+                    theoreticalExit,
+                    calculation: theoreticalExitCalc
+                });
+            }
+
+            const finalResult = {
                 status,
                 workingMinutes,
                 workingSeconds,
                 presenceMinutes,
                 remainingMinutes,
-                theoreticalExit: 'Debug Mode',
+                theoreticalExit,
                 message,
                 color
             };
+            
+            console.log('🔧 DEBUG: Final debug work status result:', finalResult);
+            return finalResult;
 
         } catch (error) {
+            console.error('🔧 DEBUG: Error in getDebugWorkStatus:', error);
             return {
                 status: 'ERROR',
                 workingMinutes: 0,
@@ -730,72 +851,173 @@ class CoreIntegration {
     }
 
     /**
-     * Convert custom marcajes data to JSON format (similar to popup function)
+     * Convert custom marcajes data to JSON format with robust consecutive E/S handling
      */
     convertCustomMarcajesToJSON(customMarcajesData) {
         if (!customMarcajesData || customMarcajesData.trim() === '') {
             throw new Error('No custom marcajes data provided');
         }
 
+        console.log('🔧 DEBUG: convertCustomMarcajesToJSON called with:', customMarcajesData.substring(0, 100) + '...');
+
         // Try to parse as JSON first
         try {
-            return JSON.parse(customMarcajesData);
+            const jsonResult = JSON.parse(customMarcajesData);
+            console.log('🔧 DEBUG: Successfully parsed as JSON:', jsonResult);
+            return jsonResult;
         } catch (e) {
+            console.log('🔧 DEBUG: Not JSON, parsing as timestamp format');
             // If JSON parsing fails, try timestamp format parsing
         }
 
-        // Parse timestamp format: "09:20:08 E 000 | 09:29:03 S 000 | ..."
-        const entries = [];
-        const exits = [];
+        // Parse timestamp format with consecutive E/S collapsing: "09:20:08 E 000 | 09:29:03 S 000 | ..."
+        const timestamps = customMarcajesData.split('|').map(t => t.trim()).filter(t => t);
+        const timeEntries = [];
         
-        const timestampRegex = /(\d{2}:\d{2}:\d{2})\s+([ES])\s+\d{3}/g;
-        let match;
+        console.log('🔧 DEBUG: Split timestamps:', timestamps);
         
-        while ((match = timestampRegex.exec(customMarcajesData)) !== null) {
-            const [, time, type] = match;
-            
-            if (type === 'E') {
-                entries.push(time);
-            } else if (type === 'S') {
-                exits.push(time);
+        // First pass: extract all timestamps chronologically
+        for (const timestamp of timestamps) {
+            const match = timestamp.match(/(\d{2}:\d{2}:\d{2})\s+([ES])/);
+            if (match) {
+                const time = match[1].substring(0, 5); // Remove seconds, keep HH:MM
+                const type = match[2];
+                
+                timeEntries.push({
+                    time: time,
+                    type: type,
+                    timeInMinutes: this.parseTimeToMinutes(time)
+                });
+            }
+        }
+        
+        console.log('🔧 DEBUG: Extracted time entries:', timeEntries);
+        
+        if (timeEntries.length === 0) {
+            throw new Error('No valid timestamps found in custom marcajes data');
+        }
+        
+        // Sort by time to ensure chronological order
+        timeEntries.sort((a, b) => a.timeInMinutes - b.timeInMinutes);
+        
+        console.log('🔧 DEBUG: Sorted time entries:', timeEntries);
+        
+        // Second pass: collapse only truly consecutive entries/exits (same type in a row)
+        const finalEntries = [];
+        const finalExits = [];
+        
+        let lastType = null;
+        
+        for (const entry of timeEntries) {
+            if (entry.type === 'E') {
+                if (lastType !== 'E') {
+                    // Not consecutive, add this entry
+                    finalEntries.push(entry.time);
+                } else {
+                    // Consecutive entry, replace the last one with this later time
+                    finalEntries[finalEntries.length - 1] = entry.time;
+                }
+                lastType = 'E';
+            } else if (entry.type === 'S') {
+                if (lastType !== 'S') {
+                    // Not consecutive, add this exit
+                    finalExits.push(entry.time);
+                } else {
+                    // Consecutive exit, replace the last one with this later time
+                    finalExits[finalExits.length - 1] = entry.time;
+                }
+                lastType = 'S';
             }
         }
 
-        if (entries.length === 0) {
-            throw new Error('No valid timestamps found in custom marcajes data');
-        }
+        console.log('🔧 DEBUG: Final collapsed entries:', finalEntries);
+        console.log('🔧 DEBUG: Final collapsed exits:', finalExits);
 
         // Calculate working and presence minutes
         let workingMinutes = 0;
         let presenceMinutes = 0;
 
+        console.log('🔧 DEBUG: Starting working time calculation...');
+
         // Simple calculation: if we have entries and exits, calculate the difference
-        if (entries.length > 0) {
-            const firstEntry = this.parseTimeToMinutes(entries[0]);
+        if (finalEntries.length > 0) {
+            const firstEntry = this.parseTimeToMinutes(finalEntries[0]);
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             
-            if (exits.length > 0 && entries.length === exits.length) {
+            console.log('🔧 DEBUG: Time calculation context:', {
+                firstEntry: finalEntries[0],
+                firstEntryMinutes: firstEntry,
+                currentTime: `${now.getHours()}:${now.getMinutes()}`,
+                currentMinutes: currentMinutes,
+                entriesCount: finalEntries.length,
+                exitsCount: finalExits.length
+            });
+            
+            // Working Time = Total time from first entry to current time (or last exit if finished)
+            const firstEntryMinutes = this.parseTimeToMinutes(finalEntries[0]);
+            
+            if (finalExits.length > 0 && finalEntries.length === finalExits.length) {
                 // All periods completed
-                for (let i = 0; i < entries.length; i++) {
-                    const entryMinutes = this.parseTimeToMinutes(entries[i]);
-                    const exitMinutes = this.parseTimeToMinutes(exits[i]);
-                    workingMinutes += exitMinutes - entryMinutes;
+                console.log('🔧 DEBUG: All periods completed, calculating times...');
+                
+                // Working Time = from first entry to last exit (total timespan)
+                const lastExitMinutes = this.parseTimeToMinutes(finalExits[finalExits.length - 1]);
+                workingMinutes = lastExitMinutes - firstEntryMinutes;
+                console.log(`🔧 DEBUG: Working time (total timespan): ${finalEntries[0]} to ${finalExits[finalExits.length - 1]} = ${workingMinutes} minutes`);
+                
+                // Presence Time = sum of actual working periods (excluding breaks)
+                for (let i = 0; i < finalEntries.length; i++) {
+                    const entryMinutes = this.parseTimeToMinutes(finalEntries[i]);
+                    const exitMinutes = this.parseTimeToMinutes(finalExits[i]);
+                    const periodMinutes = exitMinutes - entryMinutes;
+                    presenceMinutes += periodMinutes;
+                    console.log(`🔧 DEBUG: Presence period ${i + 1}: ${finalEntries[i]} to ${finalExits[i]} = ${periodMinutes} minutes`);
                 }
-                presenceMinutes = workingMinutes;
             } else {
                 // Currently working
-                presenceMinutes = currentMinutes - firstEntry;
-                workingMinutes = presenceMinutes; // Simplified - no break time calculation
+                console.log('🔧 DEBUG: Currently working, calculating times...');
+                
+                // Working Time = from first entry to current time (total timespan)
+                workingMinutes = currentMinutes - firstEntryMinutes;
+                console.log(`🔧 DEBUG: Working time (total timespan): ${finalEntries[0]} to current time = ${workingMinutes} minutes`);
+                
+                // Presence Time = sum of completed periods + current working period
+                const completedPairs = Math.min(finalEntries.length, finalExits.length);
+                for (let i = 0; i < completedPairs; i++) {
+                    const entryMinutes = this.parseTimeToMinutes(finalEntries[i]);
+                    const exitMinutes = this.parseTimeToMinutes(finalExits[i]);
+                    const periodMinutes = exitMinutes - entryMinutes;
+                    presenceMinutes += periodMinutes;
+                    console.log(`🔧 DEBUG: Completed presence period ${i + 1}: ${finalEntries[i]} to ${finalExits[i]} = ${periodMinutes} minutes`);
+                }
+                
+                // Add current working period if still in office
+                if (finalEntries.length > finalExits.length) {
+                    const lastEntryMinutes = this.parseTimeToMinutes(finalEntries[finalEntries.length - 1]);
+                    const currentPeriodMinutes = currentMinutes - lastEntryMinutes;
+                    presenceMinutes += currentPeriodMinutes;
+                    console.log(`🔧 DEBUG: Current presence period: ${finalEntries[finalEntries.length - 1]} to current time = ${currentPeriodMinutes} minutes`);
+                }
             }
         }
 
-        return {
-            entries,
-            exits,
+        console.log('🔧 DEBUG: Final working time calculation:', {
+            workingMinutes: Math.max(0, Math.round(workingMinutes)),
+            presenceMinutes: Math.max(0, Math.round(presenceMinutes))
+        });
+
+        this.debug.log('🔧 DEBUG: Core parsed timestamps - Final entries:', finalEntries.length, 'Final exits:', finalExits.length);
+
+        const result = {
+            entries: finalEntries,
+            exits: finalExits,
             workingMinutes: Math.max(0, Math.round(workingMinutes)),
             presenceMinutes: Math.max(0, Math.round(presenceMinutes))
         };
+        
+        console.log('🔧 DEBUG: convertCustomMarcajesToJSON final result:', result);
+        return result;
     }
 }
 

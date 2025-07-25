@@ -223,7 +223,7 @@
             background: #f8f9fa;
             border-radius: 8px;
             margin-bottom: 15px;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .tab {
@@ -236,12 +236,23 @@
             font-size: 14px;
             font-weight: 500;
             transition: all 0.2s ease;
+            position: relative;
         }
 
         .tab.active {
             background: white;
             color: #667eea;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab:first-child.active {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .tab:last-child.active {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
 
         .tab-content {
@@ -511,23 +522,28 @@
         /* Debug Tab Styles */
         .debug-notification {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4444;
+            top: -2px;
+            right: -2px;
+            background: red;
             color: white;
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            font-size: 10px;
+            width: 12px;
+            height: 12px;
+            font-size: 8px;
             font-weight: bold;
-            text-align: center;
-            line-height: 16px;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .debug-notification.hidden {
+            display: none;
         }
 
         .tab-with-notification {
             position: relative;
+            overflow: visible;
         }
 
         .debug-warning-section {
@@ -824,35 +840,30 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">
-                            <input type="checkbox" id="customMarcajesEnabled"> <span id="customMarcajesEnabledLabel">Enable custom debug marcajes</span>
+                            <input type="checkbox" id="bypassCredentialsEnabled"> <span id="bypassCredentialsEnabledLabel">Bypass credential validation</span>
                         </label>
                     </div>
                     <div class="form-group">
                         <label class="form-label">
-                            <input type="checkbox" id="bypassCredentialsEnabled"> <span id="bypassCredentialsEnabledLabel">Bypass credential validation in debug mode</span>
+                            <input type="checkbox" id="customMarcajesEnabled"> <span id="customMarcajesEnabledLabel">Enable custom debug marcajes</span>
                         </label>
                     </div>
                     
-                    <!-- Debug Active Indicator -->
-                    <div class="debug-active-indicator hidden" id="debugActiveIndicator">
+                    <!-- Debug Active Indicator - DISABLED FOR REDUCED CLUTTER -->
+                    <!-- <div class="debug-active-indicator hidden" id="debugActiveIndicator">
                         🚨 <span id="debugModeActiveText">Debug mode active</span>
-                    </div>
-
-                    <!-- Debug Warning -->
-                    <div class="debug-warning-section hidden" id="debugWarningSection">
-                        ⚠️ <span id="debugWarningText">Debug mode will disable real data fetching from Cuco360</span>
-                        <br><br>
-                        <strong>Supported formats:</strong><br>
-                        • <strong>Timestamp format:</strong> HH:MM:SS E 000 | HH:MM:SS S 000 | ...<br>
-                        • <strong>JSON format:</strong> {"entries": ["09:20", "13:40"], "exits": ["12:30", "17:15"]}<br>
-                        <small>E = Entry, S = Exit. Use "Load Sample Data" for an example.</small>
-                    </div>
+                    </div> -->
 
                     <!-- Custom Marcajes Input -->
                     <div class="form-group hidden" id="customMarcajesGroup">
                         <label class="form-label" id="customMarcajesLabel">Custom Marcajes Data (JSON or Timestamp Format)</label>
-                        <textarea class="form-input form-textarea custom-marcajes-textarea" id="customMarcajesInput" placeholder="Enter custom marcajes data for testing (JSON format or timestamp format: HH:MM:SS E 000 | ...)"></textarea>
-                        <button type="button" class="button button-secondary" id="loadSampleMarcajes-btn" style="margin-top: 5px;">Load Sample Data</button>
+                        <textarea class="form-input form-textarea custom-marcajes-textarea" id="customMarcajesInput" placeholder="⚠️ Debug mode will disable real data fetching from Cuco360
+
+Supported formats:
+• Timestamp format: HH:MM:SS E 000 | HH:MM:SS S 000 | ...
+• JSON format: {&quot;entries&quot;: [&quot;09:20&quot;, &quot;13:40&quot;], &quot;exits&quot;: [&quot;12:30&quot;, &quot;17:15&quot;]}
+
+E = Entry, S = Exit. Use 'Load Sample Data' for an example."></textarea>
                     </div>
 
                     <button class="button button-primary" id="saveDebugConfiguration-btn">Save Debug Configuration</button>
